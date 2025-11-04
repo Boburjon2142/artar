@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="accordion mb-3 filter-section" id="searchAccordion">
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="headingOne">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+        Qidiruv / Filter
+      </button>
+    </h2>
+    <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#searchAccordion">
+      <div class="accordion-body filter-block">
+        <form method="get" class="row g-2">
+          <div class="col-md-3">
+            <input type="text" name="title" value="" class="form-control filter-input" placeholder="Sarlavha">
+          </div>
+          <div class="col-md-2">
+            <select name="category" class="form-select filter-input">
+              <option value="">Kategoriya</option>
+              {% for c in categories %}
+              <option value="{{ c.slug }}">{{ c.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-6 col-md-2">
+            <input type="number" step="0.01" name="min_price" value="" class="form-control filter-input" placeholder="Min narx">
+          </div>
+          <div class="col-6 col-md-2">
+            <input type="number" step="0.01" name="max_price" value="" class="form-control filter-input" placeholder="Max narx">
+          </div>
+          <div class="col-md-1">
+            <select name="rating_gte" class="form-select filter-input">
+              <option value="">Reyting ≥</option>
+              {% for i in '12345' %}
+              {% with v=forloop.counter %}
+                <option value="{{ v }}">{{ v }}</option>
+              {% endwith %}
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-2">
+            <select name="order_by" class="form-select filter-input">
+              <option value="">Saralash</option>
+              <option value="-date">Yangi</option>
+              <option value="price">Narx ↑</option>
+              <option value="-price">Narx ↓</option>
+              <option value="-rating">Reyting</option>
+            </select>
+          </div>
+          <div class="col-12">
+            <button class="btn btn-primary search-btn"><i class="bi bi-search"></i> Qidir</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  {% for art in page_obj %}
+  <div class="col-6 col-sm-6 col-md-4 col-lg-3">
+    <div class="product-card h-100 shadow-sm">
+      {% if art.first_image %}
+      <img src="{{ art.first_image }}" class="card-img-top cover" alt="{{ art.title }}">
+      {% else %}
+      <div class="placeholder-gradient">ARTAR</div>
+      {% endif %}
+      <div class="card-body d-flex flex-column">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <h5 class="card-title mb-0 text-truncate" title="{{ art.title }}">{{ art.title }}</h5>
+          {% if art.category %}<span class="badge bg-secondary">{{ art.category.name }}</span>{% endif %}
+        </div>
+        <div class="mb-2 price">Narx: <strong>{{ art.price }}</strong> so'm</div>
+        <div class="mb-2 product-rating">
+          <span class="rating-stars">⭐</span> {{ art.avg_rating|default:0|floatformat:1 }} • 👁️ {{ art.views_count }}
+        </div>
+        <a href="{% url 'catalog:detail' art.slug %}" class="btn view-btn mt-auto">Ko‘rish</a>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="col">Hech narsa topilmadi.</div>
+  {% endfor %}
+</div>
+
+<nav class="mt-3" aria-label="Page navigation">
+  <ul class="pagination">
+    {% if page_obj.has_previous %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Oldingi</a></li>
+    {% endif %}
+    <li class="page-item active"><span class="page-link">{{ page_obj.number }}/{{ page_obj.paginator.num_pages }}</span></li>
+    {% if page_obj.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Keyingi</a></li>
+    {% endif %}
+  </ul>
+  </nav>
+{% endblock %}

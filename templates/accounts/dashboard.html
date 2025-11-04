@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="main-content profile-grid">
+  <!-- Profile Card -->
+  <div class="profile-card">
+    <div class="avatar-container">
+      {% if user.profile.avatar %}
+        <img src="{{ user.profile.avatar.url }}" alt="avatar" class="avatar-placeholder">
+      {% else %}
+        <div class="avatar-placeholder"><span class="bi bi-person" style="font-size:3rem;"></span></div>
+      {% endif %}
+      <a href="{% url 'accounts:profile_edit' %}" class="avatar-upload"><span class="bi bi-camera"></span></a>
+    </div>
+    <div class="username">{{ user.username }}</div>
+    <div class="user-bio">{{ user.profile.bio|default:"Bio yozilmagan" }}</div>
+    <div class="profile-stats">
+      <div class="stat">
+        <div class="stat-value">{{ total_arts }}</div>
+        <div class="stat-label">Asarlar</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">{{ total_views }}</div>
+        <div class="stat-label">Ko‘rishlar</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">{{ total_comments }}</div>
+        <div class="stat-label">Izohlar</div>
+      </div>
+    </div>
+    <div class="profile-actions">
+      <a href="{% url 'catalog:create' %}" class="btn">Yangi e’lon</a>
+    </div>
+  </div>
+
+  <!-- Right column: Listings + Comments preview -->
+  <div>
+    <h3 class="mb-3">Mening e’lonlarim</h3>
+    <div class="row g-3">
+      {% for art in arts|slice:":3" %}
+      <div class="col-12">
+        <a class="list-group-item list-group-item-action d-block p-3 border rounded" href="{% url 'catalog:detail' art.slug %}">
+          <div class="d-flex w-100 justify-content-between align-items-center">
+            <h5 class="mb-1">{{ art.title }}</h5>
+            <small class="text-muted">{{ art.created|date:"Y-m-d" }}</small>
+          </div>
+          <div class="small text-muted">Narx: {{ art.price }} so'm • Reyting: {{ art.avg_rating|default:0|floatformat:1 }} • Izohlar: {{ art.comments_count }} • Ko‘rishlar: {{ art.views_count }}</div>
+        </a>
+      </div>
+      {% endfor %}
+      {% if arts|length > 3 %}
+      <div class="collapse" id="moreArts">
+        {% for art in arts|slice:"3:" %}
+        <div class="col-12">
+          <a class="list-group-item list-group-item-action d-block p-3 border rounded" href="{% url 'catalog:detail' art.slug %}">
+            <div class="d-flex w-100 justify-content-between align-items-center">
+              <h5 class="mb-1">{{ art.title }}</h5>
+              <small class="text-muted">{{ art.created|date:"Y-m-d" }}</small>
+            </div>
+            <div class="small text-muted">Narx: {{ art.price }} so'm • Reyting: {{ art.avg_rating|default:0|floatformat:1 }} • Izohlar: {{ art.comments_count }} • Ko‘rishlar: {{ art.views_count }}</div>
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="col-12">
+        <button class="btn btn-outline-secondary w-100" data-bs-toggle="collapse" data-bs-target="#moreArts" aria-expanded="false" aria-controls="moreArts">Qolgan e’lonlarni ko‘rish</button>
+      </div>
+      {% endif %}
+      {% if arts|length == 0 %}
+      <div class="text-muted">E’lonlar mavjud emas.</div>
+      {% endif %}
+    </div>
+
+    <div class="stats-section">
+      <div class="stats-title">Shaxsiy statistika</div>
+      <div class="chart">
+        {% for b in stats_bars %}
+        <div class="chart-bar" data-label="{{ b.label }}" style="height: {{ b.percent }}%;">
+          <div class="chart-value">{{ b.value }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="chart-caption text-center text-muted mt-2"></div>
+    </div>
+
+    <h4 class="mt-4">Yangi izohlar</h4>
+    <div class="list-group">
+      {% for c in comments|slice:":3" %}
+      <div class="list-group-item">
+        <div class="small text-muted">{{ c.created|date:"Y-m-d H:i" }} • {{ c.user.username }}</div>
+        <div><strong>{{ c.artwork.title }}</strong></div>
+        <div>{{ c.text|truncatechars:120 }}</div>
+      </div>
+      {% empty %}
+      <div class="text-muted">Hozircha yangi izoh yo‘q.</div>
+      {% endfor %}
+      {% if comments|length > 3 %}
+      <div class="collapse" id="moreComments">
+        {% for c in comments|slice:"3:" %}
+        <div class="list-group-item">
+          <div class="small text-muted">{{ c.created|date:"Y-m-d H:i" }} • {{ c.user.username }}</div>
+          <div><strong>{{ c.artwork.title }}</strong></div>
+          <div>{{ c.text|truncatechars:120 }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      <button class="btn btn-outline-secondary mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#moreComments" aria-expanded="false" aria-controls="moreComments">
+        Qolgan izohlarni ko‘rish
+      </button>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+  // Chart bars animation on load
+  document.addEventListener('DOMContentLoaded', function(){
+    document.querySelectorAll('.chart-bar').forEach(function(bar){
+      const h = bar.style.height; bar.style.height = '0%';
+      setTimeout(()=>{ bar.style.transition='height 1.2s ease'; bar.style.height = h; }, 200);
+    });
+  });
+</script>
+{% endblock %}
