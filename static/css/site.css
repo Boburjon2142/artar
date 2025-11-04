@@ -62,6 +62,7 @@ body.uzb-bg::before{
 .product-card .card-img-top.cover{ width:100%; height:auto; aspect-ratio: 1 / 1; object-fit:cover; }
 @media (min-width: 576px){ .product-card .card-img-top.cover{ aspect-ratio: 4 / 3; } }
 @media (min-width: 992px){ .product-card .card-img-top.cover{ aspect-ratio: auto; height:260px; } }
+.product-card .card-body{ padding: 14px 16px; }
 .product-card .price{ color: var(--accent-color); font-weight:700; }
 .product-card .btn-secondary{ background-color: transparent; color: var(--primary-color); border:2px solid var(--primary-color); }
 .product-card .btn-secondary:hover{ background-color: var(--primary-color); color:#fff; }

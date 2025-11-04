@@ -1,102 +1,112 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 {% block content %}
-<div class="row g-3">
-  <div class="col-md-7">
-    {% if art.images.all %}
-    <div id="carouselArt" class="carousel slide" data-bs-ride="carousel">
-      <div class="carousel-inner">
-        {% for img in art.images.all|slice:":3" %}
-        <div class="carousel-item {% if forloop.first %}active{% endif %}">
-          <img src="{{ img.image.url }}" class="d-block w-100" alt="{{ art.title }}">
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card shadow-sm">
+      <div class="card-body p-2 p-sm-3">
+        {% if art.images.all %}
+        <div id="carouselArt" class="carousel slide" data-bs-ride="carousel">
+          <div class="carousel-inner">
+            {% for img in art.images.all|slice:":3" %}
+            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+              <img src="{{ img.image.url }}" class="d-block w-100" alt="{{ art.title }}" loading="lazy">
+            </div>
+            {% endfor %}
+          </div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#carouselArt" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#carouselArt" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+          </button>
         </div>
-        {% endfor %}
+        {% else %}
+        <div class="placeholder-bg rounded">ARTAR</div>
+        {% endif %}
       </div>
-      <button class="carousel-control-prev" type="button" data-bs-target="#carouselArt" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon"></span>
-      </button>
-      <button class="carousel-control-next" type="button" data-bs-target="#carouselArt" data-bs-slide="next">
-        <span class="carousel-control-next-icon"></span>
-      </button>
     </div>
-    {% endif %}
   </div>
-  <div class="col-md-5">
-    <h2>{{ art.title }}</h2>
-    <div class="mb-2">Narx: <strong>{{ art.price }}</strong> so'm</div>
-    <div class="mb-2">Aloqa: {{ art.contact }}</div>
-    <div class="mb-2">Kategoriya: {{ art.category }}</div>
-    <div class="mb-2">O‘rtacha reyting: ⭐ {{ avg_rating|floatformat:1 }}</div>
-    <div class="mb-2">Ko‘rishlar: 👁️ {{ views_count }}</div>
-
-    <div class="mb-3">
-      <form method="post" class="d-flex align-items-center gap-2" id="ratingForm">
-        {% csrf_token %}
-        <div class="star-group" data-target-select="id_value"></div>
-        {{ rating_form.value }}
-        <button class="btn btn-sm btn-primary" name="rating_submit" value="1">Reyting berish</button>
-      </form>
+  <div class="col-lg-5">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h2 class="h4 mb-3">{{ art.title }}</h2>
+        <div class="mb-2">Narx: <strong>{{ art.price }}</strong> so'm</div>
+        <div class="mb-2">Aloqa: {{ art.contact }}</div>
+        {% if art.category %}<div class="mb-2">Kategoriya: {{ art.category }}</div>{% endif %}
+        <div class="mb-2">O‘rtacha reyting: ⭐ {{ avg_rating|floatformat:1 }}</div>
+        <div class="mb-2">Ko‘rishlar: 👁️ {{ views_count }}</div>
+        <div class="mb-3">
+          <form method="post" class="d-flex align-items-center gap-2" id="ratingForm">
+            {% csrf_token %}
+            <div class="star-group" data-target-select="id_value"></div>
+            {{ rating_form.value }}
+            <button class="btn btn-sm btn-primary" name="rating_submit" value="1">Reyting berish</button>
+          </form>
+        </div>
+        {% if art.description %}
+        <div class="mb-3"><p class="mb-0">{{ art.description|linebreaks }}</p></div>
+        {% endif %}
+        {% if user == art.author %}
+        <div class="d-flex gap-2">
+          <a href="{% url 'catalog:update' art.slug %}" class="btn btn-warning">Edit</a>
+          <form method="post" action="{% url 'catalog:delete' art.slug %}">
+            {% csrf_token %}
+            <button class="btn btn-danger">Delete</button>
+          </form>
+        </div>
+        {% endif %}
+      </div>
     </div>
-    <div class="mb-3">
-      <p>{{ art.description|linebreaks }}</p>
-    </div>
-
-    {% if user == art.author %}
-    <div class="d-flex gap-2">
-      <a href="{% url 'catalog:update' art.slug %}" class="btn btn-warning">Edit</a>
-      <form method="post" action="{% url 'catalog:delete' art.slug %}">
-        {% csrf_token %}
-        <button class="btn btn-danger">Delete</button>
-      </form>
-    </div>
-    {% endif %}
   </div>
 </div>
 
-<hr class="my-4">
-
-<div class="accordion my-3" id="commentsAccordion">
-  <div class="accordion-item">
-    <h2 class="accordion-header" id="commentsHeading">
-      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#commentsCollapse" aria-expanded="false" aria-controls="commentsCollapse">
-        Izohlar
-      </button>
-    </h2>
-    <div id="commentsCollapse" class="accordion-collapse collapse" data-bs-parent="#commentsAccordion">
-      <div class="accordion-body">
-        <div class="row">
-          <div class="col-md-7">
-            {% for c in comments_page %}
-            <div class="border rounded p-2 mb-2">
-              <div class="small text-muted">{{ c.user.username }} • {{ c.created|date:"Y-m-d H:i" }}</div>
-              <div>{{ c.text|linebreaks }}</div>
+<div class="card shadow-sm my-4">
+  <div class="card-body">
+    <div class="accordion" id="commentsAccordion">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="commentsHeading">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#commentsCollapse" aria-expanded="false" aria-controls="commentsCollapse">
+            Izohlar
+          </button>
+        </h2>
+        <div id="commentsCollapse" class="accordion-collapse collapse" data-bs-parent="#commentsAccordion">
+          <div class="accordion-body">
+            <div class="row">
+              <div class="col-md-7">
+                {% for c in comments_page %}
+                <div class="border rounded p-2 mb-2 bg-light-subtle">
+                  <div class="small text-muted">{{ c.user.username }} • {{ c.created|date:"Y-m-d H:i" }}</div>
+                  <div>{{ c.text|linebreaks }}</div>
+                </div>
+                {% empty %}
+                <div>Hozircha izoh yo‘q.</div>
+                {% endfor %}
+                <nav class="mt-2" aria-label="Comments">
+                  <ul class="pagination">
+                    {% if comments_page.has_previous %}
+                      <li class="page-item"><a class="page-link" href="?cpage={{ comments_page.previous_page_number }}#commentsCollapse">Oldingi</a></li>
+                    {% endif %}
+                    <li class="page-item active"><span class="page-link">{{ comments_page.number }}/{{ comments_page.paginator.num_pages }}</span></li>
+                    {% if comments_page.has_next %}
+                      <li class="page-item"><a class="page-link" href="?cpage={{ comments_page.next_page_number }}#commentsCollapse">Keyingi</a></li>
+                    {% endif %}
+                  </ul>
+                </nav>
+              </div>
+              <div class="col-md-5">
+                <h5>Yangi izoh</h5>
+                {% if user.is_authenticated %}
+                <form method="post">
+                  {% csrf_token %}
+                  {{ comment_form.text|as_crispy_field }}
+                  <button class="btn btn-primary" name="comment_submit" value="1">Yuborish</button>
+                </form>
+                {% else %}
+                <div class="alert alert-info">Izoh qoldirish uchun <a href="{% url 'login' %}">kiring</a>.</div>
+                {% endif %}
+              </div>
             </div>
-            {% empty %}
-            <div>Hozircha izoh yo‘q.</div>
-            {% endfor %}
-            <nav class="mt-2" aria-label="Comments">
-              <ul class="pagination">
-                {% if comments_page.has_previous %}
-                  <li class="page-item"><a class="page-link" href="?cpage={{ comments_page.previous_page_number }}#commentsCollapse">Oldingi</a></li>
-                {% endif %}
-                <li class="page-item active"><span class="page-link">{{ comments_page.number }}/{{ comments_page.paginator.num_pages }}</span></li>
-                {% if comments_page.has_next %}
-                  <li class="page-item"><a class="page-link" href="?cpage={{ comments_page.next_page_number }}#commentsCollapse">Keyingi</a></li>
-                {% endif %}
-              </ul>
-            </nav>
-          </div>
-          <div class="col-md-5">
-            <h5>Yangi izoh</h5>
-            {% if user.is_authenticated %}
-            <form method="post">
-              {% csrf_token %}
-              {{ comment_form.text|as_crispy_field }}
-              <button class="btn btn-primary" name="comment_submit" value="1">Yuborish</button>
-            </form>
-            {% else %}
-            <div class="alert alert-info">Izoh qoldirish uchun <a href="{% url 'login' %}">kiring</a>.</div>
-            {% endif %}
           </div>
         </div>
       </div>

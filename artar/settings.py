@@ -1,7 +1,16 @@
 import os
 from pathlib import Path
+try:
+    from dotenv import load_dotenv  # type: ignore
+except Exception:  # pragma: no cover
+    def load_dotenv(*args, **kwargs):
+        return False
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+try:
+    load_dotenv(BASE_DIR / '.env')
+except Exception:
+    pass
 
 # Environment helpers
 def get_env(name, default=None):
@@ -9,7 +18,9 @@ def get_env(name, default=None):
 
 SECRET_KEY = get_env('SECRET_KEY', 'dev-secret-key-change-me')
 DEBUG = get_env('DEBUG', '1') == '1'
-ALLOWED_HOSTS = get_env('ALLOWED_HOSTS', '*').split(',')
+# Default hosts target artar.uz; can be overridden via env
+_default_hosts = 'artar.uz,www.artar.uz,127.0.0.1,localhost'
+ALLOWED_HOSTS = [h.strip() for h in get_env('ALLOWED_HOSTS', _default_hosts).split(',') if h]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -28,6 +39,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -58,8 +70,25 @@ TEMPLATES = [
 WSGI_APPLICATION = 'artar.wsgi.application'
 ASGI_APPLICATION = 'artar.asgi.application'
 
-# Database: Postgres via env, fallback to sqlite
-if get_env('DB_NAME'):
+# Database: configurable via env
+# Prefer explicit DB_ENGINE to support aHost MySQL; fallback to Postgres if DB_NAME given; else sqlite
+DB_ENGINE = get_env('DB_ENGINE', '').lower()
+
+if DB_ENGINE == 'mysql' and get_env('DB_NAME'):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': get_env('DB_NAME'),
+            'USER': get_env('DB_USER', ''),
+            'PASSWORD': get_env('DB_PASSWORD', ''),
+            'HOST': get_env('DB_HOST', 'localhost'),
+            'PORT': get_env('DB_PORT', '3306'),
+            'OPTIONS': {
+                'charset': 'utf8mb4',
+            }
+        }
+    }
+elif get_env('DB_NAME'):
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -107,3 +136,40 @@ LOGIN_URL = 'login'
 # Crispy Forms
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
+
+# Whitenoise static files in production
+try:
+    import whitenoise  # noqa: F401
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+except Exception:
+    # Fallback in environments where whitenoise is not installed yet
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+
+# CSRF trusted origins from env (comma-separated full origins)
+_default_csrf = 'https://artar.uz,https://www.artar.uz'
+CSRF_TRUSTED_ORIGINS = [o.strip() for o in get_env('CSRF_TRUSTED_ORIGINS', _default_csrf).split(',') if o]
+
+# Security headers for production
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = get_env('SECURE_SSL_REDIRECT', '1') == '1'
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = int(get_env('SECURE_HSTS_SECONDS', '31536000'))
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+
+# Basic logging to console
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+}

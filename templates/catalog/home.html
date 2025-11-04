@@ -56,18 +56,18 @@
 </div>
 
 <div class="row g-3">
-  {% for art in page_obj %}
+  {% if arts %}
+  {% for art in arts %}
   <div class="col-6 col-sm-6 col-md-4 col-lg-3">
     <div class="product-card h-100 shadow-sm">
       {% if art.first_image %}
-      <img src="{{ art.first_image }}" class="card-img-top cover" alt="{{ art.title }}">
+      <img src="{{ art.first_image }}" class="card-img-top cover" alt="{{ art.title }}" loading="lazy">
       {% else %}
-      <div class="placeholder-gradient">ARTAR</div>
+      <div class="placeholder-bg">ARTAR</div>
       {% endif %}
-      <div class="card-body d-flex flex-column">
+      <div class="card-body d-flex flex-column p-3">
         <div class="d-flex justify-content-between align-items-center mb-1">
           <h5 class="card-title mb-0 text-truncate" title="{{ art.title }}">{{ art.title }}</h5>
-          {% if art.category %}<span class="badge bg-secondary">{{ art.category.name }}</span>{% endif %}
         </div>
         <div class="mb-2 price">Narx: <strong>{{ art.price }}</strong> so'm</div>
         <div class="mb-2 product-rating">
@@ -80,7 +80,38 @@
   {% empty %}
   <div class="col">Hech narsa topilmadi.</div>
   {% endfor %}
+  {% else %}
+  {% for art in page_obj %}
+  <div class="col-6 col-sm-6 col-md-4 col-lg-3">
+    <div class="product-card h-100 shadow-sm">
+      {% if art.first_image %}
+      <img src="{{ art.first_image }}" class="card-img-top cover" alt="{{ art.title }}" loading="lazy">
+      {% else %}
+      <div class="placeholder-bg">ARTAR</div>
+      {% endif %}
+      <div class="card-body d-flex flex-column p-3">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <h5 class="card-title mb-0 text-truncate" title="{{ art.title }}">{{ art.title }}</h5>
+        </div>
+        <div class="mb-2 price">Narx: <strong>{{ art.price }}</strong> so'm</div>
+        <div class="mb-2 product-rating">
+          <span class="rating-stars">⭐</span> {{ art.avg_rating|default:0|floatformat:1 }} • 👁️ {{ art.views_count }}
+        </div>
+        <a href="{% url 'catalog:detail' art.slug %}" class="btn view-btn mt-auto">Ko‘rish</a>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="col">Hech narsa topilmadi.</div>
+  {% endfor %}
+  {% endif %}
 </div>
+
+{% if has_more %}
+  <div class="text-center mt-3">
+    <a class="btn btn-outline-primary" href="{{ see_all_url }}">Hammasini ko‘rish</a>
+  </div>
+{% endif %}
 
 <nav class="mt-3" aria-label="Page navigation">
   <ul class="pagination">

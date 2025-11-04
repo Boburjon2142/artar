@@ -42,3 +42,28 @@ python manage.py seed_demo
 
 Facebook ikonkasi olib tashlangan.
 
+## Deploy (Gunicorn + Whitenoise)
+
+1) .env ni ishlab chiqarish uchun to‘ldiring:
+
+```
+DEBUG=0
+ALLOWED_HOSTS=your.domain.com,www.your.domain.com
+CSRF_TRUSTED_ORIGINS=https://your.domain.com,https://www.your.domain.com
+SECURE_SSL_REDIRECT=1
+```
+
+2) Staticlarni yig‘ing:
+
+```
+python manage.py collectstatic --noinput
+```
+
+3) Gunicorn bilan ishga tushiring (reverse proxy orqasida):
+
+```
+pip install -r requirements.txt
+gunicorn artar.wsgi --bind 0.0.0.0:8000
+```
+
+Nginx orqali `proxy_set_header X-Forwarded-Proto https;` yuboring, `ALLOWED_HOSTS` va `CSRF_TRUSTED_ORIGINS` ni to‘g‘ri sozlang. Whitenoise staticlarni bevosita Django orqali xizmat qiladi.

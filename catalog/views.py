@@ -54,13 +54,29 @@ def home_view(request):
     if order_by in allowed_order:
         qs = qs.order_by(allowed_order[order_by])
 
-    paginator = Paginator(qs, 9)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    show_all = request.GET.get('all') == '1'
+    page_obj = None
+    arts = None
+    has_more = False
+    see_all_url = None
+
+    if show_all:
+        paginator = Paginator(qs, 9)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+    else:
+        arts = list(qs.order_by('-created')[:10])
+        has_more = qs.count() > 10
+        params = request.GET.copy()
+        params['all'] = '1'
+        see_all_url = f"?{params.urlencode()}"
 
     categories = Category.objects.all()
     ctx = {
         'page_obj': page_obj,
+        'arts': arts,
+        'has_more': has_more,
+        'see_all_url': see_all_url,
         'categories': categories,
         'filters': {
             'title': title, 'category': category, 'min_price': min_price,
