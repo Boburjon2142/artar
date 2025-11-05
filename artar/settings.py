@@ -73,12 +73,13 @@ ASGI_APPLICATION = 'artar.asgi.application'
 # Database: configurable via env
 # Prefer explicit DB_ENGINE to support aHost MySQL; fallback to Postgres if DB_NAME given; else sqlite
 DB_ENGINE = get_env('DB_ENGINE', '').lower()
+DB_NAME = get_env('DB_NAME')
 
-if DB_ENGINE == 'mysql' and get_env('DB_NAME'):
-    DATABASES = {
+def _mysql_db():
+    return {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': get_env('DB_NAME'),
+            'NAME': DB_NAME,
             'USER': get_env('DB_USER', ''),
             'PASSWORD': get_env('DB_PASSWORD', ''),
             'HOST': get_env('DB_HOST', 'localhost'),
@@ -88,17 +89,28 @@ if DB_ENGINE == 'mysql' and get_env('DB_NAME'):
             }
         }
     }
-elif get_env('DB_NAME'):
-    DATABASES = {
+
+def _pg_db():
+    return {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': get_env('DB_NAME'),
+            'NAME': DB_NAME,
             'USER': get_env('DB_USER', ''),
             'PASSWORD': get_env('DB_PASSWORD', ''),
             'HOST': get_env('DB_HOST', 'localhost'),
             'PORT': get_env('DB_PORT', '5432'),
         }
     }
+
+if DB_NAME:
+    # Default to MySQL when DB_ENGINE is empty, keep overrides
+    if DB_ENGINE in ('', 'mysql'):
+        DATABASES = _mysql_db()
+    elif DB_ENGINE in ('postgres', 'postgresql', 'pg'):
+        DATABASES = _pg_db()
+    else:
+        # Unknown value: choose MySQL as default
+        DATABASES = _mysql_db()
 else:
     DATABASES = {
         'default': {
@@ -139,7 +151,6 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # Whitenoise static files in production
 try:
-    import whitenoise  # noqa: F401
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 except Exception:
     # Fallback in environments where whitenoise is not installed yet
