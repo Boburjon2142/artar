@@ -65,8 +65,8 @@ def home_view(request):
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
     else:
-        arts = list(qs.order_by('-created')[:10])
-        has_more = qs.count() > 10
+        arts = list(qs.order_by('-created')[:12])
+        has_more = qs.count() > 12
         params = request.GET.copy()
         params['all'] = '1'
         see_all_url = f"?{params.urlencode()}"
@@ -213,3 +213,107 @@ def art_delete(request, slug):
         return redirect('catalog:home')
 
     return render(request, 'catalog/delete_confirm.html', {'art': art})
+from django.core.paginator import Paginator
+from django.shortcuts import render
+from django.apps import apps
+from django.db import models
+
+
+def _get_model(app_label: str, candidates):
+    for name in candidates:
+        try:
+            return apps.get_model(app_label, name)
+        except LookupError:
+            continue
+    return None
+
+
+def home_view(request):
+    # Resolve primary listing model dynamically to avoid import errors
+    Listing = _get_model('catalog', [
+        'Art', 'Artwork', 'ArtItem', 'Product', 'Item', 'Listing', 'Ad', 'Announcement', 'Elon'
+    ])
+    Category = _get_model('catalog', ['Category', 'ArtCategory', 'ProductCategory'])
+
+    if Listing is None:
+        # Render graceful message rather than crash
+        return render(request, 'catalog/home.html', {
+            'page_obj': Paginator([], 12).get_page(1),
+            'categories': Category.objects.all() if Category else [],
+        })
+
+    qs = Listing.objects.all()
+
+    # Determine available fields
+    field_names = {f.name for f in Listing._meta.get_fields() if isinstance(f, models.Field)}
+
+    # Default ordering: newest by id or created fields
+    if 'id' in field_names:
+        qs = qs.order_by('-id')
+    elif 'created_at' in field_names:
+        qs = qs.order_by('-created_at')
+    elif 'date' in field_names:
+        qs = qs.order_by('-date')
+
+    params = request.GET
+
+    # Title filter
+    title = params.get('title')
+    if title:
+        if 'title' in field_names:
+            qs = qs.filter(title__icontains=title)
+        elif 'name' in field_names:
+            qs = qs.filter(name__icontains=title)
+
+    # Category by slug if FKey named category and related has slug
+    cat = params.get('category')
+    if cat and 'category' in field_names:
+        try:
+            rel = Listing._meta.get_field('category').remote_field.model
+            rel_fields = {f.name for f in rel._meta.get_fields() if isinstance(f, models.Field)}
+            if 'slug' in rel_fields:
+                qs = qs.filter(category__slug=cat)
+            elif 'id' in rel_fields:
+                qs = qs.filter(category__id=cat)
+        except Exception:
+            pass
+
+    # Price bounds
+    mn = params.get('min_price')
+    if mn:
+        for pfield in ('price', 'amount', 'cost'):
+            if pfield in field_names:
+                qs = qs.filter(**{f'{pfield}__gte': mn})
+                break
+
+    mx = params.get('max_price')
+    if mx:
+        for pfield in ('price', 'amount', 'cost'):
+            if pfield in field_names:
+                qs = qs.filter(**{f'{pfield}__lte': mx})
+                break
+
+    # Order by if provided and allowed
+    order = params.get('order_by')
+    if order:
+        # Map friendly keys to actual fields
+        mapping = {
+            '-date': '-date' if 'date' in field_names else '-created_at' if 'created_at' in field_names else '-id',
+            'price': 'price' if 'price' in field_names else 'amount' if 'amount' in field_names else None,
+            '-price': '-price' if 'price' in field_names else '-amount' if 'amount' in field_names else None,
+            '-rating': '-avg_rating' if 'avg_rating' in field_names else '-rating' if 'rating' in field_names else None,
+        }
+        target = mapping.get(order, order)
+        if target and target.lstrip('-') in field_names:
+            qs = qs.order_by(target)
+
+    paginator = Paginator(qs, 12)
+    page_number = request.GET.get('page') or 1
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'page_obj': page_obj,
+        'categories': Category.objects.all() if Category else [],
+    }
+
+    return render(request, 'catalog/home.html', context)
