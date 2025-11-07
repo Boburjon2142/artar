@@ -82,31 +82,7 @@
       <div class="chart-caption text-center text-muted mt-2"></div>
     </div>
 
-    <h4 class="mt-4">Yangi izohlar</h4>
-    <div class="list-group">
-      {% for c in comments|slice:":3" %}
-      <div class="list-group-item">
-        <div class="small text-muted">{{ c.created|date:"Y-m-d H:i" }} • {{ c.user.username }}</div>
-        <div><strong>{{ c.artwork.title }}</strong></div>
-        <div>{{ c.text|truncatechars:120 }}</div>
-      </div>
-      {% empty %}
-      <div class="text-muted">Hozircha yangi izoh yo‘q.</div>
-      {% endfor %}
-      {% if comments|length > 3 %}
-      <div class="collapse" id="moreComments">
-        {% for c in comments|slice:"3:" %}
-        <div class="list-group-item">
-          <div class="small text-muted">{{ c.created|date:"Y-m-d H:i" }} • {{ c.user.username }}</div>
-          <div><strong>{{ c.artwork.title }}</strong></div>
-          <div>{{ c.text|truncatechars:120 }}</div>
-        </div>
-        {% endfor %}
-      </div>
-      <button class="btn btn-outline-secondary mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#moreComments" aria-expanded="false" aria-controls="moreComments">
-        Qolgan izohlarni ko‘rish
-      </button>
-      {% endif %}
+    
     </div>
   </div>
 </div>
@@ -121,3 +97,28 @@
   });
 </script>
 {% endblock %}
+{% load static qparams %}
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+
+{# User listing statistics (no functional change, pure display) #}
+{% user_listing_stats request.user as stats %}
+<div class="profile-container">
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-value">{{ stats.total }}</div>
+      <div class="stat-label">Jami e'lonlar</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ stats.published }}</div>
+      <div class="stat-label">Faol e'lonlar</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ stats.views }}</div>
+      <div class="stat-label">Umumiy ko'rishlar</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ stats.avg_rating|floatformat:1 }}</div>
+      <div class="stat-label">O'rtacha reyting</div>
+    </div>
+  </div>
+</div>

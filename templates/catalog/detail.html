@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static crispy_forms_tags %}
+{% load static crispy_forms_tags qparams %}
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/uzbek.css' %}">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
@@ -59,9 +59,23 @@
             <i class="bi bi-telephone uzbek-info-icon"></i>
             <div class="uzbek-info-content">
               <span class="uzbek-info-label">Aloqa:</span>
-              {{ art.contact }}
+              {% if art.contact %}
+                <a href="{{ art.contact|phone_href }}" style="text-decoration:none">{{ art.contact }}</a>
+              {% else %}
+                —
+              {% endif %}
             </div>
           </div>
+          
+          {% if art.author %}
+          <div class="uzbek-info-item">
+            <i class="bi bi-person uzbek-info-icon"></i>
+            <div class="uzbek-info-content">
+              <span class="uzbek-info-label">E'lon egasi:</span>
+              <strong>{{ art.author.get_full_name|default:art.author.username }}</strong>
+            </div>
+          </div>
+          {% endif %}
           
           {% if art.category %}
           <div class="uzbek-info-item">
