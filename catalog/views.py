@@ -217,6 +217,10 @@ from django.core.paginator import Paginator
 from django.shortcuts import render
 from django.apps import apps
 from django.db import models
+from django.forms import ModelForm
+from django.forms import inlineformset_factory
+from django.http import HttpResponseRedirect
+from django.urls import reverse, NoReverseMatch
 
 
 def _get_model(app_label: str, candidates):
@@ -317,3 +321,111 @@ def home_view(request):
     }
 
     return render(request, 'catalog/home.html', context)
+
+
+# -----------------------------
+# Create view (catalog:create)
+# -----------------------------
+
+def create_view(request):
+    """Create listing using dynamic ModelForm and optional image formset.
+
+    - Works with models named: Art/Artwork/ArtItem/Product/Item/Listing/Ad/Announcement/Elon
+    - Tries to detect fields: title/name, price/amount, contact/phone, category, description/text/content
+    - If there is a related images model with FK to listing and an ImageField named 'image', it exposes a formset
+    """
+    Listing = _get_model('catalog', [
+        'Art', 'Artwork', 'ArtItem', 'Product', 'Item', 'Listing', 'Ad', 'Announcement', 'Elon'
+    ])
+    if Listing is None:
+        return render(request, 'catalog/create.html', {'form': None, 'image_formset': None})
+
+    # Detect common fields
+    fset = {f.name: f for f in Listing._meta.get_fields() if isinstance(f, models.Field)}
+    possible = {
+        'title': next((n for n in ['title', 'name'] if n in fset), None),
+        'price': next((n for n in ['price', 'amount', 'cost'] if n in fset), None),
+        'contact': next((n for n in ['contact', 'phone', 'contact_phone'] if n in fset), None),
+        'category': 'category' if 'category' in fset else None,
+        'description': next((n for n in ['description', 'text', 'content'] if n in fset), None),
+        'slug': 'slug' if 'slug' in fset else None,
+    }
+
+    form_fields = [n for n in [possible['title'], possible['price'], possible['contact'], possible['category'], possible['description']] if n]
+
+    class ListingForm(ModelForm):
+        class Meta:
+            model = Listing
+            fields = form_fields if form_fields else '__all__'
+
+    # Detect author field
+    author_field = _author_field(Listing)
+
+    # Detect images related model
+    ImagesModel = None
+    image_field_name = None
+    order_field_name = None
+    fk_name = None
+    for rel in Listing._meta.get_fields():
+        if getattr(rel, 'is_relation', False) and getattr(rel, 'one_to_many', False):
+            rm = rel.related_model
+            if not rm:
+                continue
+            rm_fields = {f.name: f for f in rm._meta.get_fields() if isinstance(f, models.Field)}
+            img_name = next((n for n, f in rm_fields.items() if n in ['image', 'file'] and f.get_internal_type() in ['ImageField', 'FileField']), None)
+            if img_name:
+                ImagesModel = rm
+                image_field_name = img_name
+                order_field_name = 'order' if 'order' in rm_fields else None
+                fk_name = rel.field.name if hasattr(rel, 'field') else rel.remote_field.name
+                break
+
+    ImageFormSet = None
+    if ImagesModel and fk_name and image_field_name:
+        fields = [image_field_name]
+        if order_field_name:
+            fields.append(order_field_name)
+        ImageFormSet = inlineformset_factory(Listing, ImagesModel, fields=fields, extra=3, can_delete=True)
+
+    if request.method == 'POST':
+        form = ListingForm(request.POST, request.FILES)
+        formset = ImageFormSet(request.POST, request.FILES, prefix='images') if ImageFormSet else None
+        if form.is_valid() and (formset is None or formset.is_valid()):
+            instance = form.save(commit=False)
+            if author_field and getattr(request, 'user', None) and request.user.is_authenticated:
+                try:
+                    setattr(instance, author_field, request.user)
+                except Exception:
+                    pass
+            instance.save()
+            if formset:
+                fsi = formset.save(commit=False)
+                for img in fsi:
+                    try:
+                        setattr(img, fk_name, instance)
+                        img.save()
+                    except Exception:
+                        continue
+                # handle deletions
+                for obj in formset.deleted_objects:
+                    try:
+                        obj.delete()
+                    except Exception:
+                        pass
+            # Redirect to detail if possible
+            try:
+                if possible['slug']:
+                    url = reverse('catalog:detail', args=[getattr(instance, possible['slug'])])
+                else:
+                    url = reverse('catalog:detail', args=[instance.pk])
+                return HttpResponseRedirect(url)
+            except NoReverseMatch:
+                return HttpResponseRedirect(reverse('catalog:home'))
+        else:
+            context = {'form': form, 'image_formset': formset}
+            return render(request, 'catalog/create.html', context)
+    else:
+        form = ListingForm()
+        formset = ImageFormSet(prefix='images') if ImageFormSet else None
+        context = {'form': form, 'image_formset': formset}
+        return render(request, 'catalog/create.html', context)

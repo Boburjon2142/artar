@@ -102,23 +102,42 @@
 
 {# User listing statistics (no functional change, pure display) #}
 {% user_listing_stats request.user as stats %}
-<div class="profile-container">
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-value">{{ stats.total }}</div>
-      <div class="stat-label">Jami e'lonlar</div>
+<div class="dashboard-container">
+  <div class="dashboard-header mb-4">
+    <div class="profile-section">
+      <img class="profile-avatar" src="{{ request.user.profile.avatar.url|default:'' }}" onerror="this.src='https://via.placeholder.com/120x120.png?text=User'" alt="{{ request.user.get_full_name|default:request.user.username }}">
+      <div class="profile-info">
+        <h2>{{ request.user.get_full_name|default:request.user.username }}</h2>
+        <p class="profile-bio">{{ request.user.profile.bio|default:'Bio yozilmagan' }}</p>
+      </div>
     </div>
-    <div class="stat-card">
-      <div class="stat-value">{{ stats.published }}</div>
-      <div class="stat-label">Faol e'lonlar</div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-number">{{ stats.total }}</span>
+        <span class="stat-label">E'lonlar</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">{{ stats.views }}</span>
+        <span class="stat-label">Ko'rishlar</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">{{ stats.avg_rating|floatformat:1 }}</span>
+        <span class="stat-label">O'rtacha reyting</span>
+      </div>
     </div>
-    <div class="stat-card">
-      <div class="stat-value">{{ stats.views }}</div>
-      <div class="stat-label">Umumiy ko'rishlar</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value">{{ stats.avg_rating|floatformat:1 }}</div>
-      <div class="stat-label">O'rtacha reyting</div>
+
+    <div class="action-buttons">
+      {% url 'catalog:create' as create_url_fallback %}
+      {% url 'accounts:profile_edit' as profile_edit_url_fallback %}
+      <a href="{{ create_url|default:create_url_fallback|default:'#' }}" class="btn btn-light new-artwork-btn">
+        <i class="bi bi-plus-circle"></i> Yangi e'lon qo'shish
+      </a>
+      <a href="{{ profile_edit_url|default:profile_edit_url_fallback|default:'#' }}" class="btn btn-outline-light">
+        <i class="bi bi-person"></i> Profilni tahrirlash
+      </a>
     </div>
   </div>
+
+  
 </div>
