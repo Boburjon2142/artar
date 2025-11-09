@@ -10,7 +10,7 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
 ]
 
+# STATIC va MEDIA fayllar uchun to‘g‘ri sozlama
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

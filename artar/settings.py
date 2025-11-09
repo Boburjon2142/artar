@@ -103,14 +103,14 @@ def _pg_db():
     }
 
 if DB_NAME:
-    # Default to MySQL when DB_ENGINE is empty, keep overrides
-    if DB_ENGINE in ('', 'mysql'):
-        DATABASES = _mysql_db()
-    elif DB_ENGINE in ('postgres', 'postgresql', 'pg'):
+    # Default to PostgreSQL when DB_ENGINE is empty, keep overrides
+    if DB_ENGINE in ('', 'postgres', 'postgresql', 'pg'):
         DATABASES = _pg_db()
-    else:
-        # Unknown value: choose MySQL as default
+    elif DB_ENGINE in ('mysql', 'mariadb'):
         DATABASES = _mysql_db()
+    else:
+        # Unknown value: choose PostgreSQL as default
+        DATABASES = _pg_db()
 else:
     DATABASES = {
         'default': {
@@ -118,6 +118,7 @@ else:
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},

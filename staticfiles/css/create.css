@@ -43,3 +43,23 @@
   .form-content{ padding:1.5rem; }
 }
 
+
+
+.btn-gradient {
+  background: linear-gradient(135deg, #a96eff, #4f46e5);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+.btn-gradient:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(79, 70, 229, 0.4);
+}
+.text-gradient {
+  background: linear-gradient(90deg, #a96eff, #4f46e5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+

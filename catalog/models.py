@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from django.utils.text import slugify
 from django.utils import timezone
 from django.core.validators import MinValueValidator, MaxValueValidator
-
 import itertools
 
 
@@ -45,6 +44,7 @@ class Artwork(models.Model):
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=12, decimal_places=2, validators=[MinValueValidator(0)])
     contact = models.CharField(max_length=255)
+    image = models.ImageField(upload_to='artworks/', blank=True, null=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name='artworks')
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -62,9 +62,21 @@ class Artwork(models.Model):
         super().save(*args, **kwargs)
 
     @property
-    def first_image(self):
-        img = self.images.order_by('id').first()
-        return img.image.url if img and img.image else None
+    def first_image_url(self):
+        """Agar asosiy image yo‘q bo‘lsa, bog‘langan ArtworkImage dan birinchi rasmni qaytaradi."""
+        if self.image:
+            try:
+                return self.image.url
+            except Exception:
+                pass
+        if hasattr(self, 'images') and self.images.exists():
+            first_img = self.images.first()
+            if first_img and first_img.image:
+                try:
+                    return first_img.image.url
+                except Exception:
+                    pass
+        return None
 
 
 def artwork_image_upload_to(instance: 'ArtworkImage', filename: str):
@@ -121,4 +133,3 @@ class ArtworkView(models.Model):
     def __str__(self):
         who = self.user.username if self.user else self.ip_address
         return f"View {self.artwork} by {who}"
-
