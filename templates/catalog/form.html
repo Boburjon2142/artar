@@ -14,8 +14,36 @@
 
     <form method="post" enctype="multipart/form-data" novalidate>
       {% csrf_token %}
-      {{ form|crispy }}
 
+      <!-- Asosiy forma maydonlari -->
+      <div class="mb-3">
+        {{ form.title|as_crispy_field }}
+      </div>
+
+      <div class="mb-3">
+        {{ form.price|as_crispy_field }}
+      </div>
+
+      <div class="mb-3">
+        {{ form.description|as_crispy_field }}
+      </div>
+
+      <div class="mb-3">
+        {{ form.contact|as_crispy_field }}
+      </div>
+
+      <!-- Yangi qo‘shilgan ixtiyoriy Telegram maydoni -->
+      <div class="mb-3">
+        {{ form.telegram.label_tag }}
+        {{ form.telegram }}
+        <small class="text-muted">Ixtiyoriy: foydalanuvchilar siz bilan to‘g‘ridan-to‘g‘ri Telegram orqali bog‘lanishlari mumkin (@username shaklida).</small>
+      </div>
+
+      <div class="mb-3">
+        {{ form.category|as_crispy_field }}
+      </div>
+
+      <!-- Rasmlar bo‘limi -->
       <div class="mt-4">
         <h5 class="fw-semibold mb-3">🖼️ Rasmlar (eng ko‘pi 3 ta)</h5>
         {{ formset.management_form }}
@@ -30,6 +58,7 @@
         </div>
       </div>
 
+      <!-- Tugmalar -->
       <div class="text-center mt-4">
         <button type="submit" class="btn btn-gradient px-4 py-2 fw-semibold">
           💾 Saqlash
