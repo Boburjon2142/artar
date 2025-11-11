@@ -36,7 +36,7 @@ class ArtworkForm(forms.ModelForm):
                 'class': 'form-control'
             }),
             'telegram': forms.TextInput(attrs={
-                'placeholder': '@username yoki t.me/link (ixtiyoriy)',
+                'placeholder': '@username (ixtiyoriy)',
                 'class': 'form-control'
             }),
             'category': forms.Select(attrs={

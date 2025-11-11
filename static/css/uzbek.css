@@ -117,3 +117,37 @@
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+
+/* 🔹 Telegram badge dizayni */
+.telegram-badge {
+  background: linear-gradient(135deg, #0088cc, #1da1f2);
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 30px;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s ease;
+}
+
+.telegram-badge:hover {
+  background: linear-gradient(135deg, #1da1f2, #0088cc);
+  transform: scale(1.05);
+  text-decoration: none;
+}
+
+.telegram-badge-link {
+  text-decoration: none;
+}
+
+/* 🔹 Mobil uchun responsiv moslashuv */
+@media (max-width: 768px) {
+  .telegram-badge {
+    display: block;
+    text-align: center;
+    margin-top: 6px;
+  }
+}
+

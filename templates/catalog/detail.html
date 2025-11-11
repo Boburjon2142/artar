@@ -100,6 +100,26 @@
             </div>
           </div>
 
+          <!-- 🔹 TELEGRAM MANZILI -->
+          {% if art.telegram %}
+          <div class="uzbek-info-item">
+            <i class="bi bi-telegram uzbek-info-icon text-primary"></i>
+            <div class="uzbek-info-content">
+              <span class="uzbek-info-label">Telegram:</span>
+              <a 
+                href="https://t.me/{{ art.telegram|cut:'@' }}" 
+                target="_blank" 
+                rel="noopener"
+                class="telegram-badge-link"
+              >
+                <span class="telegram-badge">
+                  <i class="bi bi-telegram"></i> @{{ art.telegram|cut:'@' }}
+                </span>
+              </a>
+            </div>
+          </div>
+          {% endif %}
+
           {% if art.author %}
           <div class="uzbek-info-item">
             <i class="bi bi-person uzbek-info-icon"></i>
@@ -137,106 +157,12 @@
           </div>
         </div>
 
-        <div class="uzbek-rating-section mt-4 p-3 rounded">
-          <h6 class="mb-3"><i class="bi bi-star-fill me-2"></i>Reyting berish</h6>
-          <form method="post" class="d-flex align-items-center gap-3" id="ratingForm">
-            {% csrf_token %}
-            <div class="star-group uzbek-star-group" data-target-select="id_value"></div>
-            {{ rating_form.value }}
-            <button class="btn btn-gradient btn-sm" name="rating_submit" value="1">
-              <i class="bi bi-send me-1"></i>Yuborish
-            </button>
-          </form>
-        </div>
-
         {% if art.description %}
         <div class="uzbek-description mt-4 p-3 rounded">
           <h6><i class="bi bi-card-text me-2"></i>Tavsif</h6>
           <p class="mb-0 uzbek-text">{{ art.description|linebreaks }}</p>
         </div>
         {% endif %}
-
-        {% if user == art.author %}
-        <div class="uzbek-actions mt-4 p-3 rounded">
-          <h6><i class="bi bi-gear me-2"></i>Boshqarish</h6>
-          <div class="d-flex gap-2">
-            <a href="{% url 'catalog:update' art.slug %}" class="btn btn-warning btn-sm">
-              <i class="bi bi-pencil me-1"></i>Tahrirlash
-            </a>
-            <form method="post" action="{% url 'catalog:delete' art.slug %}">
-              {% csrf_token %}
-              <button class="btn btn-danger btn-sm">
-                <i class="bi bi-trash me-1"></i>O'chirish
-              </button>
-            </form>
-          </div>
-        </div>
-        {% endif %}
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- IZOH BO‘LIMI -->
-<div class="card shadow-sm my-4 uzbek-card">
-  <div class="card-header uzbek-card-header py-3">
-    <h4 class="mb-0"><i class="bi bi-chat-dots me-2"></i>Izohlar</h4>
-  </div>
-  <div class="card-body">
-    <div class="accordion" id="commentsAccordion">
-      <div class="accordion-item border-0">
-        <h2 class="accordion-header" id="commentsHeading">
-          <button class="accordion-button uzbek-accordion-btn collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#commentsCollapse" aria-expanded="false" aria-controls="commentsCollapse">
-            <i class="bi bi-chat-square-text me-2"></i>Izohlar ro'yxati ({{ comments_page.paginator.count }})
-          </button>
-        </h2>
-        <div id="commentsCollapse" class="accordion-collapse collapse" data-bs-parent="#commentsAccordion">
-          <div class="accordion-body">
-            <div class="row">
-              <div class="col-md-7">
-                {% for c in comments_page %}
-                <div class="uzbek-comment border rounded p-3 mb-3">
-                  <div class="d-flex justify-content-between align-items-start mb-2">
-                    <div class="uzbek-comment-author">
-                      <i class="bi bi-person-circle me-2"></i>
-                      <strong>{{ c.user.username }}</strong>
-                    </div>
-                    <small class="text-muted">{{ c.created|date:"Y-m-d H:i" }}</small>
-                  </div>
-                  <div class="uzbek-comment-text">{{ c.text|linebreaks }}</div>
-                </div>
-                {% empty %}
-                <div class="text-center py-4 uzbek-empty-state">
-                  <i class="bi bi-chat-square display-1 text-muted mb-3"></i>
-                  <h5 class="text-muted">Hozircha izoh yo‘q</h5>
-                  <p class="text-muted">Birinchi izoh qoldiruvchi siz bo‘ling!</p>
-                </div>
-                {% endfor %}
-              </div>
-
-              <div class="col-md-5">
-                <div class="uzbek-comment-form p-3 rounded">
-                  <h5><i class="bi bi-pencil-square me-2"></i>Yangi izoh</h5>
-                  {% if user.is_authenticated %}
-                  <form method="post">
-                    {% csrf_token %}
-                    {{ comment_form.text|as_crispy_field }}
-                    <button class="btn btn-gradient w-100" name="comment_submit" value="1">
-                      <i class="bi bi-send me-2"></i>Yuborish
-                    </button>
-                  </form>
-                  {% else %}
-                  <div class="alert alert-info uzbek-alert">
-                    <i class="bi bi-info-circle me-2"></i>
-                    Izoh qoldirish uchun 
-                    <a href="{% url 'login' %}" class="alert-link">tizimga kiring</a>.
-                  </div>
-                  {% endif %}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </div>
