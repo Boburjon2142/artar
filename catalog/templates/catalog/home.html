@@ -72,7 +72,15 @@
       <div class="col-6 col-md-4 col-lg-3">
         <div class="card h-100 shadow-sm uzbek-product-card">
           {% if art.first_image_url %}
-            <img src="{{ art.first_image_url }}" class="card-img-top cover" alt="{{ art.title }}" loading="lazy">
+            <img 
+    src="{{ art.first_image_url }}" 
+    alt="{{ art.title }}" 
+    class="card-img-top cover rounded-3 shadow-sm" 
+    loading="lazy"
+    width="400" 
+    height="300"
+    style="object-fit: cover; aspect-ratio: 4 / 3;"
+>
           {% else %}
             <div class="placeholder-bg uzbek-placeholder text-center p-5 text-muted">
               <i class="bi bi-image fs-1"></i>

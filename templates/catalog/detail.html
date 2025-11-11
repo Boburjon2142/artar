@@ -5,18 +5,34 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
 <div class="row g-4">
+  <!-- ASAR RASMLARI -->
   <div class="col-lg-7">
     <div class="card shadow-sm uzbek-card">
       <div class="card-header uzbek-card-header py-3">
         <h4 class="mb-0"><i class="bi bi-images me-2"></i>Asar rasmlari</h4>
       </div>
       <div class="card-body p-2 p-sm-3">
+
         {% if art.images.all %}
         <div id="carouselArt" class="carousel slide uzbek-carousel" data-bs-ride="carousel">
           <div class="carousel-inner rounded">
             {% for img in art.images.all|slice:":3" %}
             <div class="carousel-item {% if forloop.first %}active{% endif %}">
-              <img src="{{ img.image.url }}" class="d-block w-100 uzbek-carousel-img" alt="{{ art.title }}" loading="lazy">
+              <img 
+                src="{{ img.image.url }}" 
+                alt="{{ art.title }}" 
+                class="d-block w-100 rounded-4 shadow-sm"
+                loading="lazy"
+                style="
+                  max-height: 600px;
+                  object-fit: contain;
+                  background-color: #fafafa;
+                  border: 1px solid #eee;
+                  transition: transform 0.3s ease;
+                "
+                onmouseover="this.style.transform='scale(1.02)'"
+                onmouseout="this.style.transform='scale(1)'"
+              >
             </div>
             {% endfor %}
           </div>
@@ -27,6 +43,22 @@
             <span class="carousel-control-next-icon uzbek-carousel-control"></span>
           </button>
         </div>
+
+        {% elif art.first_image_url %}
+        <div class="text-center">
+          <img 
+            src="{{ art.first_image_url }}" 
+            alt="{{ art.title }}" 
+            class="img-fluid rounded-4 shadow-sm"
+            loading="lazy"
+            style="
+              max-height: 600px;
+              object-fit: contain;
+              background-color: #fafafa;
+              border: 1px solid #eee;
+            ">
+        </div>
+
         {% else %}
         <div class="placeholder-bg rounded uzbek-placeholder-large text-center py-5">
           <i class="bi bi-image display-1 mb-3"></i>
@@ -34,10 +66,12 @@
           <small class="text-muted">Rasm mavjud emas</small>
         </div>
         {% endif %}
+
       </div>
     </div>
   </div>
-  
+
+  <!-- ASAR MA'LUMOTLARI -->
   <div class="col-lg-5">
     <div class="card shadow-sm uzbek-card">
       <div class="card-header uzbek-card-header py-3">
@@ -45,7 +79,7 @@
       </div>
       <div class="card-body">
         <h2 class="h4 mb-3 uzbek-title">{{ art.title }}</h2>
-        
+
         <div class="uzbek-info-list">
           <div class="uzbek-info-item">
             <i class="bi bi-currency-dollar uzbek-info-icon"></i>
@@ -54,19 +88,18 @@
               <strong class="uzbek-price">{{ art.price }} so'm</strong>
             </div>
           </div>
-          
+
           <div class="uzbek-info-item">
             <i class="bi bi-telephone uzbek-info-icon"></i>
             <div class="uzbek-info-content">
               <span class="uzbek-info-label">Aloqa:</span>
               {% if art.contact %}
                 <a href="{{ art.contact|phone_href }}" style="text-decoration:none">{{ art.contact }}</a>
-              {% else %}
-                —
+              {% else %}—
               {% endif %}
             </div>
           </div>
-          
+
           {% if art.author %}
           <div class="uzbek-info-item">
             <i class="bi bi-person uzbek-info-icon"></i>
@@ -76,7 +109,7 @@
             </div>
           </div>
           {% endif %}
-          
+
           {% if art.category %}
           <div class="uzbek-info-item">
             <i class="bi bi-tag uzbek-info-icon"></i>
@@ -86,7 +119,7 @@
             </div>
           </div>
           {% endif %}
-          
+
           <div class="uzbek-info-item">
             <i class="bi bi-star uzbek-info-icon"></i>
             <div class="uzbek-info-content">
@@ -94,11 +127,11 @@
               <span class="uzbek-rating">⭐ {{ avg_rating|floatformat:1 }}</span>
             </div>
           </div>
-          
+
           <div class="uzbek-info-item">
             <i class="bi bi-eye uzbek-info-icon"></i>
             <div class="uzbek-info-content">
-              <span class="uzbek-info-label">Ko'rishlar:</span>
+              <span class="uzbek-info-label">Ko‘rishlar:</span>
               <span class="uzbek-views">👁️ {{ views_count }}</span>
             </div>
           </div>
@@ -144,6 +177,7 @@
   </div>
 </div>
 
+<!-- IZOH BO‘LIMI -->
 <div class="card shadow-sm my-4 uzbek-card">
   <div class="card-header uzbek-card-header py-3">
     <h4 class="mb-0"><i class="bi bi-chat-dots me-2"></i>Izohlar</h4>
@@ -174,40 +208,12 @@
                 {% empty %}
                 <div class="text-center py-4 uzbek-empty-state">
                   <i class="bi bi-chat-square display-1 text-muted mb-3"></i>
-                  <h5 class="text-muted">Hozircha izoh yo'q</h5>
-                  <p class="text-muted">Birinchi izoh qoldiruvchi siz bo'ling!</p>
+                  <h5 class="text-muted">Hozircha izoh yo‘q</h5>
+                  <p class="text-muted">Birinchi izoh qoldiruvchi siz bo‘ling!</p>
                 </div>
                 {% endfor %}
-                
-                {% if comments_page.paginator.num_pages > 1 %}
-                <nav class="mt-4">
-                  <ul class="pagination justify-content-center uzbek-pagination">
-                    {% if comments_page.has_previous %}
-                      <li class="page-item">
-                        <a class="page-link" href="?cpage={{ comments_page.previous_page_number }}#commentsCollapse">
-                          <i class="bi bi-chevron-left"></i>
-                        </a>
-                      </li>
-                    {% endif %}
-                    
-                    <li class="page-item active">
-                      <span class="page-link uzbek-page-active">
-                        {{ comments_page.number }}/{{ comments_page.paginator.num_pages }}
-                      </span>
-                    </li>
-                    
-                    {% if comments_page.has_next %}
-                      <li class="page-item">
-                        <a class="page-link" href="?cpage={{ comments_page.next_page_number }}#commentsCollapse">
-                          <i class="bi bi-chevron-right"></i>
-                        </a>
-                      </li>
-                    {% endif %}
-                  </ul>
-                </nav>
-                {% endif %}
               </div>
-              
+
               <div class="col-md-5">
                 <div class="uzbek-comment-form p-3 rounded">
                   <h5><i class="bi bi-pencil-square me-2"></i>Yangi izoh</h5>

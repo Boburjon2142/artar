@@ -7,6 +7,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 import itertools
 
 
+# --- SLUG YARATISH FUNKSIYASI ---
 def unique_slugify(instance, value, slug_field_name='slug', queryset=None):
     slug = slugify(value)
     if queryset is None:
@@ -21,6 +22,7 @@ def unique_slugify(instance, value, slug_field_name='slug', queryset=None):
     return slug
 
 
+# --- KATEGORIYA MODELI ---
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(max_length=120, unique=True, blank=True)
@@ -37,6 +39,7 @@ class Category(models.Model):
         super().save(*args, **kwargs)
 
 
+# --- ASAR MODELI ---
 class Artwork(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='artworks')
     title = models.CharField(max_length=200)
@@ -44,6 +47,12 @@ class Artwork(models.Model):
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=12, decimal_places=2, validators=[MinValueValidator(0)])
     contact = models.CharField(max_length=255)
+    telegram = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        verbose_name="Telegram manzili (ixtiyoriy)"
+    )
     image = models.ImageField(upload_to='artworks/', blank=True, null=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name='artworks')
     created = models.DateTimeField(auto_now_add=True)
@@ -59,6 +68,11 @@ class Artwork(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = unique_slugify(self, self.title)
+        # Telegram manzilini avtomatik to‘g‘rilash
+        if self.telegram:
+            self.telegram = self.telegram.strip()
+            if not self.telegram.startswith('@') and 't.me/' not in self.telegram:
+                self.telegram = '@' + self.telegram
         super().save(*args, **kwargs)
 
     @property
@@ -79,10 +93,12 @@ class Artwork(models.Model):
         return None
 
 
+# --- RASM YO‘NALISHI FUNKSIYASI ---
 def artwork_image_upload_to(instance: 'ArtworkImage', filename: str):
     return f"artworks/{timezone.now().strftime('%Y/%m')}/{filename}"
 
 
+# --- KO‘P RASMLI MODEL ---
 class ArtworkImage(models.Model):
     artwork = models.ForeignKey(Artwork, on_delete=models.CASCADE, related_name='images')
     image = models.ImageField(upload_to=artwork_image_upload_to)
@@ -95,6 +111,7 @@ class ArtworkImage(models.Model):
         return f"Image for {self.artwork.title}"
 
 
+# --- REYTING MODELI ---
 class Rating(models.Model):
     artwork = models.ForeignKey(Artwork, on_delete=models.CASCADE, related_name='ratings')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ratings')
@@ -108,6 +125,7 @@ class Rating(models.Model):
         return f"{self.artwork} - {self.value} by {self.user}"
 
 
+# --- IZOH MODELI ---
 class Comment(models.Model):
     artwork = models.ForeignKey(Artwork, on_delete=models.CASCADE, related_name='comments')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
@@ -121,6 +139,7 @@ class Comment(models.Model):
         return f"Comment by {self.user} on {self.artwork}"
 
 
+# --- KO‘RISHLAR MODELI ---
 class ArtworkView(models.Model):
     artwork = models.ForeignKey(Artwork, on_delete=models.CASCADE, related_name='views')
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='artwork_views')
