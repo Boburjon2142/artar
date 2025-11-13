@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5" style="max-width: 600px;">
+  <div class="card shadow-sm uzbek-card">
+    <div class="card-header uzbek-card-header">
+      <h5 class="mb-0"><i class="bi bi-trash me-2"></i>Izohni o‘chirish</h5>
+    </div>
+
+    <div class="card-body">
+      <p><strong>{{ comment.user.username }}</strong> tomonidan yozilgan izohni o‘chirmoqchimisiz?</p>
+      <p class="border rounded p-2">{{ comment.text }}</p>
+
+      <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Ha, o‘chirish</button>
+        <a href="{% url 'catalog:detail' art.slug %}" class="btn btn-secondary">Bekor qilish</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
