@@ -1,0 +1,153 @@
+/* Uzbek national style theme variables */
+:root {
+  --primary-color: #00A79D;       /* teal */
+  --secondary-color: #1F4788;     /* deep blue */
+  --gold-color: #E6B31E;          /* gold */
+  --pomegranate: #D35454;         /* pomegranate red */
+}
+
+/* Buttons */
+.btn-gradient {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: #fff !important;
+  border: none;
+}
+.btn-gradient:hover {
+  background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+  color: #fff !important;
+}
+
+/* Generic cards */
+.uzbek-card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+.uzbek-card-header {
+  background: linear-gradient(135deg, rgba(0, 167, 157, 0.08), rgba(31, 71, 136, 0.08));
+  border-bottom: 1px solid rgba(0, 167, 157, 0.15);
+}
+
+/* Accordion */
+.uzbek-accordion-btn {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  font-weight: 600;
+  border: none;
+}
+.uzbek-accordion-btn:not(.collapsed) {
+  background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+  color: white;
+}
+
+/* Inputs */
+.uzbek-input,
+.form-control.uzbek-input,
+.form-select.uzbek-input {
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+.uzbek-input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(0, 167, 157, 0.25);
+}
+
+/* Product cards */
+.uzbek-product-card { transition: all 0.3s ease; animation: uzbekFadeIn 0.6s ease-out; }
+.uzbek-product-card:hover { transform: translateY(-8px); box-shadow: 0 12px 30px rgba(0,0,0,0.15); }
+.uzbek-title { color: var(--secondary-color); font-weight: 600; }
+.uzbek-price { color: var(--pomegranate); font-weight: 600; }
+.uzbek-rating { color: var(--gold-color); font-weight: 500; }
+.uzbek-views { color: #666; }
+
+.cover { height: 190px; object-fit: cover; }
+.placeholder-bg { background: #f7f7f7; height: 190px; display:flex; align-items:center; justify-content:center; color:#999; }
+.uzbek-placeholder { background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:1.2rem; }
+.uzbek-placeholder-large { background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; font-size: 2rem; font-weight: 600; }
+
+.uzbek-empty-state { padding: 3rem 1rem; }
+.uzbek-pagination { margin: 2rem 0; }
+.uzbek-page-active { background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-color: var(--primary-color); }
+.pagination .page-item.active .page-link { color:#fff; border-color: transparent; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); }
+.pagination .page-item.disabled .page-link { opacity: .6; }
+
+/* Separator with national motif hint */
+.uzbek-separator { height: 10px; background: repeating-linear-gradient(45deg, var(--primary-color), var(--primary-color) 10px, var(--secondary-color) 10px, var(--secondary-color) 20px); border-radius: 6px; opacity: 0.2; }
+
+/* Carousel */
+.uzbek-carousel { border-radius: 12px; overflow: hidden; }
+.uzbek-carousel-img { height: 400px; object-fit: cover; }
+.uzbek-carousel-control { background-color: rgba(0,0,0,0.3); border-radius: 50%; width: 40px; height: 40px; margin: auto 10px; }
+
+/* Info list */
+.uzbek-info-list { display: flex; flex-direction: column; gap: 1rem; }
+.uzbek-info-item { display: flex; align-items: center; gap: 1rem; padding: 0.5rem 0; border-bottom: 1px solid #f0f0f0; }
+.uzbek-info-icon { color: var(--primary-color); font-size: 1.2rem; width: 24px; }
+.uzbek-info-content { flex: 1; }
+.uzbek-info-label { font-weight: 600; color: var(--secondary-color); margin-right: 0.5rem; }
+
+/* Rating block */
+.uzbek-rating-section { background: linear-gradient(135deg, rgba(0, 167, 157, 0.05), rgba(31, 71, 136, 0.05)); border: 1px solid rgba(0, 167, 157, 0.2); }
+.uzbek-star-group .star { font-size: 1.5rem; color: #ddd; cursor: pointer; transition: all 0.2s ease; }
+.uzbek-star-group .star.active, .uzbek-star-group .star.hover { color: var(--gold-color); transform: scale(1.1); }
+
+/* Comments */
+.uzbek-comment { background: #fff; transition: all 0.3s ease; animation: uzbekFadeIn 0.4s ease-out; }
+.uzbek-comment:hover { box-shadow: 0 4px 15px rgba(0,0,0,0.1); transform: translateX(5px); }
+.uzbek-comment-author { color: var(--secondary-color); }
+.uzbek-comment-text { color: #444; line-height: 1.5; }
+.uzbek-comment-form { background: linear-gradient(135deg, rgba(0, 167, 157, 0.05), rgba(31, 71, 136, 0.05)); border: 1px solid rgba(0, 167, 157, 0.2); }
+.uzbek-alert { border: none; border-radius: 8px; background: linear-gradient(135deg, rgba(23, 162, 184, 0.1), rgba(0, 167, 157, 0.1)); border-left: 4px solid var(--primary-color); }
+
+/* Generic enhancements for login/register/dashboard without touching templates */
+.uzbek-stats { color: var(--secondary-color); }
+.uzbek-progress .progress-bar { background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .uzbek-carousel-img { height: 250px; }
+  .uzbek-info-item { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+  .uzbek-info-icon { align-self: flex-start; }
+}
+
+/* Animations */
+@keyframes uzbekFadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+
+/* 🔹 Telegram badge dizayni */
+.telegram-badge {
+  background: linear-gradient(135deg, #0088cc, #1da1f2);
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 30px;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s ease;
+}
+
+.telegram-badge:hover {
+  background: linear-gradient(135deg, #1da1f2, #0088cc);
+  transform: scale(1.05);
+  text-decoration: none;
+}
+
+.telegram-badge-link {
+  text-decoration: none;
+}
+
+/* 🔹 Mobil uchun responsiv moslashuv */
+@media (max-width: 768px) {
+  .telegram-badge {
+    display: block;
+    text-align: center;
+    margin-top: 6px;
+  }
+}
+

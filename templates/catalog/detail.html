@@ -74,9 +74,22 @@
   <!-- ASAR MA'LUMOTLARI -->
   <div class="col-lg-5">
     <div class="card shadow-sm uzbek-card">
-      <div class="card-header uzbek-card-header py-3">
+      <div class="card-header uzbek-card-header py-3 d-flex justify-content-between align-items-center">
         <h4 class="mb-0"><i class="bi bi-info-circle me-2"></i>Asar ma'lumotlari</h4>
+
+        <!-- 🔥 Tahrirlash & O‘chirish tugmalari – faqat muallifga -->
+        {% if is_owner %}
+        <div>
+          <a href="{% url 'catalog:update' art.slug %}" class="btn btn-sm btn-warning me-1">
+            <i class="bi bi-pencil-square"></i>
+          </a>
+          <a href="{% url 'catalog:delete' art.slug %}" class="btn btn-sm btn-danger">
+            <i class="bi bi-trash"></i>
+          </a>
+        </div>
+        {% endif %}
       </div>
+
       <div class="card-body">
         <h2 class="h4 mb-3 uzbek-title">{{ art.title }}</h2>
 
@@ -95,23 +108,16 @@
               <span class="uzbek-info-label">Aloqa:</span>
               {% if art.contact %}
                 <a href="{{ art.contact|phone_href }}" style="text-decoration:none">{{ art.contact }}</a>
-              {% else %}—
-              {% endif %}
+              {% else %}—{% endif %}
             </div>
           </div>
 
-          <!-- 🔹 TELEGRAM MANZILI -->
           {% if art.telegram %}
           <div class="uzbek-info-item">
             <i class="bi bi-telegram uzbek-info-icon text-primary"></i>
             <div class="uzbek-info-content">
               <span class="uzbek-info-label">Telegram:</span>
-              <a 
-                href="https://t.me/{{ art.telegram|cut:'@' }}" 
-                target="_blank" 
-                rel="noopener"
-                class="telegram-badge-link"
-              >
+              <a href="https://t.me/{{ art.telegram|cut:'@' }}" target="_blank" class="telegram-badge-link">
                 <span class="telegram-badge">
                   <i class="bi bi-telegram"></i> @{{ art.telegram|cut:'@' }}
                 </span>

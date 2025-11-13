@@ -107,7 +107,10 @@ def art_detail(request, slug):
         slug=slug
     )
 
-    # Ko‘rishlar hisoblash (faqat bir marta IP yoki user uchun)
+    # 🔥 Faqat muallif uchun tahrirlash/o‘chirish tugmalari
+    is_owner = request.user.is_authenticated and art.author == request.user
+
+    # Ko‘rishlar hisoblash (bir marta IP yoki user uchun)
     user = request.user if request.user.is_authenticated else None
     ip = get_client_ip(request)
     if user:
@@ -120,12 +123,14 @@ def art_detail(request, slug):
     avg_rating = art.ratings.aggregate(r=Avg('value'))['r'] or 0
     views_count = art.views.count()
 
-    # POST – reyting yoki izoh qo‘shish
+    # POST — reyting yoki izoh
     if request.method == 'POST':
+        # ⭐ Reyting
         if 'rating_submit' in request.POST:
             if not request.user.is_authenticated:
                 messages.error(request, 'Reyting berish uchun login qiling.')
                 return redirect('login')
+
             form = RatingForm(request.POST)
             if form.is_valid():
                 value = form.cleaned_data['value']
@@ -134,10 +139,13 @@ def art_detail(request, slug):
                 )
                 messages.success(request, 'Reyting saqlandi.')
                 return redirect('catalog:detail', slug=art.slug)
+
+        # 💬 Izoh
         elif 'comment_submit' in request.POST:
             if not request.user.is_authenticated:
                 messages.error(request, 'Izoh qoldirish uchun login qiling.')
                 return redirect('login')
+
             cform = CommentForm(request.POST)
             if cform.is_valid():
                 Comment.objects.create(
@@ -161,6 +169,9 @@ def art_detail(request, slug):
         'rating_form': rating_form,
         'comment_form': comment_form,
         'comments_page': comments_page,
+
+        # 🔥 YANGI: templatega muallifligini jo‘natdik
+        'is_owner': is_owner,
     }
     return render(request, 'catalog/detail.html', ctx)
 
