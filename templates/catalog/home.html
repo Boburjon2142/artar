@@ -9,26 +9,12 @@
 <div id="filterBox" class="accordion mb-3 filter-section uzbek-card d-none">
   <div class="accordion-item">
 
-    <h2 class="accordion-header" id="headingOne">
-      <button class="accordion-button collapsed uzbek-accordion-btn"
-              type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#collapseOne"
-              aria-expanded="false"
-              aria-controls="collapseOne">
-        <i class="bi bi-filter-circle me-2"></i> Qidiruv / Filter
-      </button>
-    </h2>
+    <!-- ❌ "Qidiruv / Filter" sarlavhasi olib tashlandi -->
 
     <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#filterBox">
       <div class="accordion-body filter-block">
 
         <form method="get" class="row g-2">
-
-          <!-- Sarlavha -->
-          <div class="col-md-3">
-            <input type="text" name="title" class="form-control filter-input uzbek-input" placeholder="Sarlavha">
-          </div>
 
           <!-- Kategoriya -->
           <div class="col-md-2">
@@ -46,11 +32,12 @@
             </select>
           </div>
 
-          <!-- Narxlar -->
+          <!-- Min narx -->
           <div class="col-6 col-md-2">
             <input type="number" step="0.01" name="min_price" class="form-control filter-input uzbek-input" placeholder="Min narx">
           </div>
 
+          <!-- Max narx -->
           <div class="col-6 col-md-2">
             <input type="number" step="0.01" name="max_price" class="form-control filter-input uzbek-input" placeholder="Max narx">
           </div>
@@ -78,13 +65,13 @@
             </select>
           </div>
 
-          <!-- Tugmalar -->
-          <div class="col-12 mt-3">
-            <button class="btn btn-gradient search-btn">
-              <i class="bi bi-search me-2"></i> Qidir
+          <!-- Qidirish + Tozalash tugmalari (ENDI BIR QATORDA!) -->
+          <div class="col-md-3 d-flex gap-2">
+            <button class="btn btn-gradient search-btn w-100">
+              <i class="bi bi-search me-2"></i> Qidirish
             </button>
 
-            <button type="reset" class="btn btn-outline-secondary ms-2">
+            <button type="reset" class="btn btn-outline-secondary w-100">
               <i class="bi bi-arrow-clockwise me-2"></i> Tozalash
             </button>
           </div>
