@@ -21,7 +21,9 @@ body { background-color: var(--background-light); }
 
 body.uzb-bg::before {
   content:""; position:fixed; inset:0; z-index:-1;
-  background-image:linear-gradient(rgba(253,253,246,.88),rgba(253,253,246,.88)),var(--bg-image);
+  background-image:
+    linear-gradient(rgba(253,253,246,.88),rgba(253,253,246,.88)),
+    var(--bg-image);
   background-size:cover; background-position:center; background-attachment:fixed;
 }
 
@@ -44,7 +46,7 @@ body.uzb-bg::before {
 .brand-text { letter-spacing:.5px; }
 
 /* ===========================
-   NAVBAR SEARCH (FINAL)
+   NAVBAR SEARCH
 =========================== */
 
 .navbar .search-bar {
@@ -64,7 +66,7 @@ body.uzb-bg::before {
   flex: 0 1 auto;
 }
 
-/* Tugmalar */
+/* Default small buttons */
 .navbar .search-bar .btn-mini {
   height: var(--navbar-input-h);
   padding: 0 12px;
@@ -81,7 +83,7 @@ body.uzb-bg::before {
   gap: 6px;
 }
 
-/* Desktop: inputni kichraytirish */
+/* Desktop: inputni kattaroq qilish */
 @media (min-width: 992px) {
   .navbar .search-bar {
     justify-content: flex-end;
@@ -94,7 +96,7 @@ body.uzb-bg::before {
 }
 
 /* ===========================
-   MOBILE NAVBAR FIX (IDEAL)
+   MOBILE NAVBAR FIX
 =========================== */
 @media (max-width: 767px) {
 
@@ -118,6 +120,56 @@ body.uzb-bg::before {
     flex: 1 1 50%;
     width: auto;
   }
+}
+
+/* ===========================
+   SPLIT BUTTON (YANGI)
+=========================== */
+
+.split-btn {
+    background: linear-gradient(
+        90deg,
+        var(--grad-start) 0%,
+        var(--grad-start) 50%,
+        var(--grad-end) 50%,
+        var(--grad-end) 100%
+    );
+    color: #fff !important;
+    border: none;
+    border-radius: 10px;
+    height: var(--navbar-input-h);
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 15px;
+    font-weight: 500;
+    transition: .2s ease;
+}
+
+.split-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.split-btn-icon {
+    background: var(--grad-end);
+    color: #fff !important;
+    border: none;
+    border-radius: 10px;
+    height: var(--navbar-input-h);
+    width: var(--navbar-input-h);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    transition: .2s ease;
+}
+
+.split-btn-icon:hover {
+    opacity: .92;
+    transform: translateY(-1px);
 }
 
 /* ===========================
@@ -237,8 +289,6 @@ body.uzb-bg::before {
 
 .chart-bar.show-badge .chart-badge { opacity:1; }
 
-
-
 /* ===========================
    FOOTER LOGO FIX
 =========================== */
@@ -262,4 +312,3 @@ body.uzb-bg::before {
         text-align: center;
     }
 }
-
