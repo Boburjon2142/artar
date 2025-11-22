@@ -151,7 +151,7 @@ form .btn{ min-width:140px; }
 }
 
 /* ===== Global background image integration (ikat) ===== */
-:root{ --bg-image: url('/static/img/ikat-bg.png'); }
+:root{ --bg-image: url("/static/img/ikat-bg.b085c49c8464.png"); }
 body.uzb-bg::before{
   background-image: linear-gradient(rgba(253,253,246,.88), rgba(253,253,246,.88)), var(--bg-image);
   background-size: cover; background-position: center; background-attachment: fixed;

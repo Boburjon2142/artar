@@ -17,7 +17,7 @@ def get_client_ip(request):
     return request.META.get('REMOTE_ADDR', '')
 
 
-# 🏠 Bosh sahifa
+# 🏠 Bosh sahifa (TO‘LIQ TUZATILGAN)
 def home_view(request):
     qs = Artwork.objects.select_related('author', 'category') \
         .prefetch_related('images') \
@@ -34,6 +34,7 @@ def home_view(request):
     rating_gte = request.GET.get('rating_gte', '').strip()
     order_by = request.GET.get('order_by', '').strip()
 
+    # Filter amallari
     if title:
         qs = qs.filter(title__icontains=title)
     if category:
@@ -56,28 +57,13 @@ def home_view(request):
     }
     qs = qs.order_by(allowed_order.get(order_by, '-created'))
 
-    # Pagination yoki cheklangan ko‘rish
-    show_all = request.GET.get('all') == '1'
-
-    if show_all:
-        paginator = Paginator(qs, 12)
-        page_obj = paginator.get_page(request.GET.get('page'))
-        arts = None
-        has_more = False
-        see_all_url = None
-    else:
-        arts = list(qs[:12])
-        has_more = qs.count() > 12
-        params = request.GET.copy()
-        params['all'] = '1'
-        see_all_url = f"?{params.urlencode()}"
-        page_obj = None
+    # PAGINATION — HAR DOIM SERVER-SIDE
+    paginator = Paginator(qs, 12)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
     ctx = {
         'page_obj': page_obj,
-        'arts': arts,
-        'has_more': has_more,
-        'see_all_url': see_all_url,
         'categories': Category.objects.all(),
         'filters': {
             'title': title,
@@ -88,6 +74,7 @@ def home_view(request):
             'order_by': order_by,
         },
     }
+
     return render(request, 'catalog/home.html', ctx)
 
 
@@ -99,10 +86,9 @@ def art_detail(request, slug):
         slug=slug
     )
 
-    # Muallifligini tekshirish
     is_owner = request.user.is_authenticated and request.user == art.author
 
-    # Ko‘rishlar logi
+    # Ko‘rish logi
     ip = get_client_ip(request)
     if request.user.is_authenticated:
         if not ArtworkView.objects.filter(artwork=art, user=request.user).exists():
@@ -117,7 +103,7 @@ def art_detail(request, slug):
     # POST: Reyting & Izoh
     if request.method == 'POST':
 
-        # ⭐ Reyting qo‘yish
+        # ⭐ Reyting
         if 'rating_submit' in request.POST:
             if not request.user.is_authenticated:
                 messages.error(request, "Reyting berish uchun login qiling.")
@@ -133,7 +119,7 @@ def art_detail(request, slug):
                 messages.success(request, "Reyting saqlandi.")
                 return redirect('catalog:detail', slug=slug)
 
-        # 💬 Izoh qoldirish
+        # 💬 Izoh
         if 'comment_submit' in request.POST:
             if not request.user.is_authenticated:
                 messages.error(request, "Izoh yozish uchun login qiling.")
@@ -149,11 +135,9 @@ def art_detail(request, slug):
                 messages.success(request, "Izoh qo‘shildi.")
                 return redirect('catalog:detail', slug=slug)
 
-    # Formlar
     rating_form = RatingForm()
     comment_form = CommentForm()
 
-    # Izohlar pagination bilan
     comments_qs = art.comments.select_related('user').order_by('-created')
     paginator = Paginator(comments_qs, 10)
     comments_page = paginator.get_page(request.GET.get('cpage'))
@@ -170,13 +154,13 @@ def art_detail(request, slug):
     return render(request, 'catalog/detail.html', ctx)
 
 
-# 🗑️ Izoh o‘chirish
+# ❌ E’lon o‘chirish
 @login_required
 def comment_delete(request, pk):
     comment = get_object_or_404(Comment, pk=pk)
 
     if comment.user != request.user:
-        messages.error(request, "Faqat o‘zingiz yozgan izohni o‘chira olasiz.")
+        messages.error(request, "Faqat o‘zingiz yozgan izohni o‘chirishingiz mumkin.")
         return redirect('catalog:detail', slug=comment.artwork.slug)
 
     if request.method == 'POST':

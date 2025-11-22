@@ -1,123 +1,282 @@
-document.addEventListener('DOMContentLoaded', function(){
-  // Enhance rating select into stars if present
-  const group = document.querySelector('.star-group');
-  const select = document.getElementById((group && group.dataset && group.dataset.targetSelect) ? group.dataset.targetSelect : 'id_value');
-  if(group && select){
-    select.style.position = 'absolute';
-    select.style.left = '-9999px';
-    const current = parseInt(select.value || '0', 10);
-    for(let i=1;i<=5;i++){
-      const el = document.createElement('span');
-      el.className = 'star' + (i <= current ? ' active' : '');
-      el.innerHTML = '★';
-      el.dataset.value = String(i);
-      el.addEventListener('mouseenter',()=>{
-        Array.from(group.children).forEach(s=>s.classList.toggle('hover', parseInt(s.dataset.value,10)<=i));
-      });
-      el.addEventListener('mouseleave',()=>{
-        Array.from(group.children).forEach(s=>s.classList.remove('hover'));
-      });
-      el.addEventListener('click',()=>{
-        select.value = String(i);
-        Array.from(group.children).forEach(s=>s.classList.toggle('active', parseInt(s.dataset.value,10)<=i));
-      });
-      group.appendChild(el);
+console.log("SITE.JS YUKLANDI ✅");
+
+
+// site.js – ARTAR umumiy frontend logikasi
+
+document.addEventListener("DOMContentLoaded", () => {
+  initRatingStars();
+  initFilterAccordionAutoExpand();
+  initNavbarSearchClear();
+  initFilterFormClear();
+  initNewsletterForm();
+  initChartAnimations();
+  initChartBadges();
+  initFilterToggle();
+});
+
+/* ===================== ⭐ Reyting yulduzlari ===================== */
+
+function initRatingStars() {
+  const group = document.querySelector(".star-group");
+  if (!group) return;
+
+  const targetId =
+    (group.dataset && group.dataset.targetSelect) || "id_value";
+  const select = document.getElementById(targetId);
+  if (!select) return;
+
+  select.style.position = "absolute";
+  select.style.left = "-9999px";
+
+  const current = parseInt(select.value || "0", 10);
+
+  for (let i = 1; i <= 5; i++) {
+    const el = document.createElement("span");
+    el.className = "star" + (i <= current ? " active" : "");
+    el.innerHTML = "★";
+    el.dataset.value = String(i);
+
+    el.addEventListener("mouseenter", () => {
+      Array.from(group.children).forEach((s) =>
+        s.classList.toggle(
+          "hover",
+          parseInt(s.dataset.value || "0", 10) <= i
+        )
+      );
+    });
+
+    el.addEventListener("mouseleave", () => {
+      Array.from(group.children).forEach((s) =>
+        s.classList.remove("hover")
+      );
+    });
+
+    el.addEventListener("click", () => {
+      select.value = String(i);
+      Array.from(group.children).forEach((s) =>
+        s.classList.toggle(
+          "active",
+          parseInt(s.dataset.value || "0", 10) <= i
+        )
+      );
+    });
+
+    group.appendChild(el);
+  }
+}
+
+/* ===================== 📂 Filter accordion auto-open ===================== */
+
+function initFilterAccordionAutoExpand() {
+  const collapseEl = document.getElementById("collapseOne");
+  const accBtn = document.querySelector("#headingOne .accordion-button");
+  const filterBox = document.getElementById("filterBox");
+
+  if (!collapseEl) return;
+
+  const form = collapseEl.querySelector("form");
+  if (!form) return;
+
+  const names = [
+    "title",
+    "category",
+    "min_price",
+    "max_price",
+    "rating_gte",
+    "order_by",
+  ];
+
+  let hasValue = false;
+  for (const n of names) {
+    const el = form.elements[n];
+    if (el && el.value && String(el.value).trim() !== "") {
+      hasValue = true;
+      break;
     }
   }
 
-  // Auto-expand filter accordion if any filter value present
-  const collapseEl = document.getElementById('collapseOne');
-  const accBtn = document.querySelector('#headingOne .accordion-button');
-  if (collapseEl) {
-    const form = collapseEl.querySelector('form');
-    if (form) {
-      const names = ['title','category','min_price','max_price','rating_gte','order_by'];
-      let hasValue = false;
-      for (const n of names) {
-        const el = form.elements[n];
-        if (el && el.value && String(el.value).trim() !== '') { hasValue = true; break; }
-      }
-      if (hasValue) {
-        try {
-          if (typeof bootstrap !== 'undefined' && bootstrap.Collapse) {
-            const c = new bootstrap.Collapse(collapseEl, { toggle: false });
-            c.show();
-          } else {
-            collapseEl.classList.add('show');
-          }
-          if (accBtn) { accBtn.classList.remove('collapsed'); accBtn.setAttribute('aria-expanded','true'); }
-        } catch(e) { /* noop */ }
-      }
-    }
-  }
+  if (!hasValue) return;
 
-  // Clear navbar search input after search (do not repopulate on reload)
-  const navSearch = document.getElementById('navSearch');
-  if (navSearch) {
-    try {
-      const params = new URLSearchParams(window.location.search);
-      if (params.has('title')) {
-        navSearch.value = '';
-      }
-    } catch (e) { /* noop */ }
-  }
-
-  // Clear filter form inputs after search
+  // Filter ishlatilgan bo‘lsa – panelni avtomatik ochamiz
   try {
-    const filterForm = document.querySelector('#collapseOne form');
-    if (filterForm) {
-      const params = new URLSearchParams(window.location.search);
-      const names = ['title','category','min_price','max_price','rating_gte','order_by'];
-      const hasAny = names.some(n => params.has(n) && params.get(n));
-      if (hasAny) {
-        if (filterForm.elements['title']) filterForm.elements['title'].value = '';
-        ['category','rating_gte','order_by'].forEach(n => { const el = filterForm.elements[n]; if (el) el.value = ''; });
-        ['min_price','max_price'].forEach(n => { const el = filterForm.elements[n]; if (el) el.value = ''; });
-      }
+    if (typeof bootstrap !== "undefined" && bootstrap.Collapse) {
+      const c = new bootstrap.Collapse(collapseEl, { toggle: false });
+      c.show();
+    } else {
+      collapseEl.classList.add("show");
     }
-  } catch (e) { /* noop */ }
+  } catch (e) {
+    // noop
+  }
 
-  // Newsletter: clear on load and on submit
+  if (accBtn) {
+    accBtn.classList.remove("collapsed");
+    accBtn.setAttribute("aria-expanded", "true");
+  }
+
+  // Filter ishlatilgan bo‘lsa, blokni ham ko‘rsatamiz
+  if (filterBox) {
+    filterBox.classList.remove("d-none");
+  }
+}
+
+/* ===================== 🔍 Navbar qidiruvini tozalash ===================== */
+
+function initNavbarSearchClear() {
+  const navSearch = document.getElementById("navSearch");
+  if (!navSearch) return;
+
   try {
-    const emailInput = document.getElementById('newsletterEmail');
-    const form = document.getElementById('newsletterForm');
-    if (emailInput) emailInput.value = '';
+    const params = new URLSearchParams(window.location.search);
+    if (params.has("title")) {
+      navSearch.value = "";
+    }
+  } catch (e) {
+    // noop
+  }
+}
+
+/* ===================== 🧹 Filter form qiymatlarini tozalash ===================== */
+
+function initFilterFormClear() {
+  try {
+    const filterForm = document.querySelector("#collapseOne form");
+    if (!filterForm) return;
+
+    const params = new URLSearchParams(window.location.search);
+    const names = [
+      "title",
+      "category",
+      "min_price",
+      "max_price",
+      "rating_gte",
+      "order_by",
+    ];
+
+    const hasAny = names.some((n) => params.has(n) && params.get(n));
+
+    if (!hasAny) return;
+
+    if (filterForm.elements["title"]) {
+      filterForm.elements["title"].value = "";
+    }
+
+    ["category", "rating_gte", "order_by"].forEach((n) => {
+      const el = filterForm.elements[n];
+      if (el) el.value = "";
+    });
+
+    ["min_price", "max_price"].forEach((n) => {
+      const el = filterForm.elements[n];
+      if (el) el.value = "";
+    });
+  } catch (e) {
+    // noop
+  }
+}
+
+/* ===================== ✉ Newsletter ===================== */
+
+function initNewsletterForm() {
+  try {
+    const emailInput = document.getElementById("newsletterEmail");
+    const form = document.getElementById("newsletterForm");
+
+    if (emailInput) emailInput.value = "";
+
     if (form) {
-      form.addEventListener('submit', function(e){
+      form.addEventListener("submit", function (e) {
         e.preventDefault();
-        if (emailInput) emailInput.value = '';
-        alert('Obuna saqlandi!');
+        if (emailInput) emailInput.value = "";
+        alert("Obuna saqlandi!");
       });
     }
-  } catch(e) { /* noop */ }
+  } catch (e) {
+    // noop
+  }
+}
 
-  // Animate chart bars on load
-  Array.from(document.querySelectorAll('.chart-bar')).forEach(function(bar){
-    const h = bar.style.height; bar.style.height = '0%';
-    setTimeout(()=>{ bar.style.transition='height 1.2s ease'; bar.style.height = h; }, 200);
+/* ===================== 📊 Grafik animatsiyasi ===================== */
+
+function initChartAnimations() {
+  const bars = document.querySelectorAll(".chart-bar");
+  if (!bars.length) return;
+
+  Array.from(bars).forEach((bar) => {
+    const h = bar.style.height || "0%";
+    bar.style.height = "0%";
+    setTimeout(() => {
+      bar.style.transition = "height 1.2s ease";
+      bar.style.height = h;
+    }, 200);
   });
+}
 
-  // Chart caption shows label on click
+/* ===================== 📊 Grafikdagi badge va caption ===================== */
+
+function initChartBadges() {
   try {
-    Array.from(document.querySelectorAll('.stats-section .chart')).forEach(function(chart){
-      const caption = chart.parentElement.querySelector('.chart-caption');
-      Array.from(chart.querySelectorAll('.chart-bar')).forEach(function(bar){
-        bar.addEventListener('click', function(){
-          const label = bar.dataset.label || '';
+    const charts = document.querySelectorAll(".stats-section .chart");
+    if (!charts.length) return;
+
+    Array.from(charts).forEach((chart) => {
+      const caption = chart.parentElement.querySelector(".chart-caption");
+      const bars = chart.querySelectorAll(".chart-bar");
+
+      Array.from(bars).forEach((bar) => {
+        bar.addEventListener("click", () => {
+          const label = bar.dataset.label || "";
+
           if (caption) caption.textContent = label;
-          // floating badge above the bar
-          let badge = bar.querySelector('.chart-badge');
+
+          let badge = bar.querySelector(".chart-badge");
           if (!badge) {
-            badge = document.createElement('div');
-            badge.className = 'chart-badge';
+            badge = document.createElement("div");
+            badge.className = "chart-badge";
             bar.appendChild(badge);
           }
+
           badge.textContent = label;
-          bar.classList.add('show-badge');
+          bar.classList.add("show-badge");
+
           clearTimeout(bar._badgeTimer);
-          bar._badgeTimer = setTimeout(()=>{ bar.classList.remove('show-badge'); }, 1600);
+          bar._badgeTimer = setTimeout(() => {
+            bar.classList.remove("show-badge");
+          }, 1600);
         });
       });
     });
-  } catch(e) { /* noop */ }
-});
+  } catch (e) {
+    // noop
+  }
+}
+
+/* ===================== 🧰 FILTER PANEL TOGGLE (Navbar tugmasi) ===================== */
+
+function initFilterToggle() {
+  const filterBtn = document.getElementById("filterToggleBtn");
+  const filterBox = document.getElementById("filterBox");
+  const collapseEl = document.getElementById("collapseOne");
+
+  if (!filterBtn || !filterBox) return;
+
+  filterBtn.addEventListener("click", () => {
+    const willShow = filterBox.classList.contains("d-none");
+
+    filterBox.classList.toggle("d-none");
+
+    // Birinchi marta ko‘rinayotganda accordionni ham ochamiz
+    if (willShow && collapseEl) {
+      try {
+        if (typeof bootstrap !== "undefined" && bootstrap.Collapse) {
+          const c = new bootstrap.Collapse(collapseEl, { toggle: false });
+          c.show();
+        } else {
+          collapseEl.classList.add("show");
+        }
+      } catch (e) {
+        // noop
+      }
+    }
+  });
+}
