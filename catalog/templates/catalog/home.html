@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/uzbek.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+<div class="accordion mb-3 filter-section uzbek-card" id="searchAccordion">
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="headingOne">
+      <button class="accordion-button collapsed uzbek-accordion-btn" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+        <i class="bi bi-filter-circle me-2"></i>Qidiruv / Filter
+      </button>
+    </h2>
+    <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#searchAccordion">
+      <div class="accordion-body filter-block">
+        <form method="get" class="row g-2">
+          <div class="col-md-3">
+            <input type="text" name="title" value="{{ request.GET.title }}" class="form-control filter-input uzbek-input" placeholder="Sarlavha">
+          </div>
+          <div class="col-md-2">
+            <select name="category" class="form-select filter-input uzbek-input">
+              <option value="">Kategoriya</option>
+              {% for c in categories %}
+                <option value="{{ c.slug }}" {% if request.GET.category == c.slug %}selected{% endif %}>{{ c.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-2">
+            <input type="number" name="min_price" value="{{ request.GET.min_price }}" step="0.01" class="form-control filter-input uzbek-input" placeholder="Min narx">
+          </div>
+          <div class="col-md-2">
+            <input type="number" name="max_price" value="{{ request.GET.max_price }}" step="0.01" class="form-control filter-input uzbek-input" placeholder="Max narx">
+          </div>
+          <div class="col-md-1">
+            <select name="rating_gte" class="form-select filter-input uzbek-input">
+              <option value="">Reyting ≥</option>
+              {% for i in '12345' %}
+                {% with v=forloop.counter %}
+                  <option value="{{ v }}" {% if request.GET.rating_gte == v|stringformat:"s" %}selected{% endif %}>{{ v }}</option>
+                {% endwith %}
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-2">
+            <select name="order_by" class="form-select filter-input uzbek-input">
+              <option value="">Saralash</option>
+              <option value="-date" {% if request.GET.order_by == '-date' %}selected{% endif %}>Yangi</option>
+              <option value="price" {% if request.GET.order_by == 'price' %}selected{% endif %}>Narx ↑</option>
+              <option value="-price" {% if request.GET.order_by == '-price' %}selected{% endif %}>Narx ↓</option>
+              <option value="-rating" {% if request.GET.order_by == '-rating' %}selected{% endif %}>Reyting</option>
+            </select>
+          </div>
+          <div class="col-12 mt-3">
+            <button class="btn btn-gradient search-btn">
+              <i class="bi bi-search me-2"></i> Qidir
+            </button>
+            <a href="/" class="btn btn-outline-secondary ms-2">
+              <i class="bi bi-arrow-clockwise me-2"></i> Tozalash
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="my-4">
+
+<div class="row g-3">
+  {% if page_obj %}
+    {% for art in page_obj.paginator.object_list %}
+      <div class="col-6 col-md-4 col-lg-3">
+        <div class="card h-100 shadow-sm uzbek-product-card">
+          {% if art.first_image_url %}
+            <img 
+    src="{{ art.first_image_url }}" 
+    alt="{{ art.title }}" 
+    class="card-img-top cover rounded-3 shadow-sm" 
+    loading="lazy"
+    width="400" 
+    height="300"
+    style="object-fit: cover; aspect-ratio: 4 / 3;"
+>
+          {% else %}
+            <div class="placeholder-bg uzbek-placeholder text-center p-5 text-muted">
+              <i class="bi bi-image fs-1"></i>
+              <div>ARTAR</div>
+            </div>
+          {% endif %}
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title text-truncate uzbek-title">{{ art.title }}</h5>
+            <div class="mb-2 uzbek-price">
+              <i class="bi bi-currency-dollar me-1"></i><strong>{{ art.price }}</strong> so‘m
+            </div>
+            <div class="mb-2 uzbek-rating">
+              ⭐ {{ art.avg_rating|default:0|floatformat:1 }} • 👁️ {{ art.views_count }}
+            </div>
+            <a href="{% url 'catalog:detail' art.slug %}" class="btn btn-gradient mt-auto">
+              <i class="bi bi-eye me-2"></i> Ko‘rish
+            </a>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-12 text-center py-5">
+        <i class="bi bi-inbox display-1 text-muted"></i>
+        <h4 class="text-muted mt-3">Hech narsa topilmadi</h4>
+      </div>
+    {% endfor %}
+  {% endif %}
+</div>
+
+<div class="d-flex justify-content-center align-items-center gap-2 my-4">
+  {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-outline-primary">
+      <i class="bi bi-chevron-left me-1"></i>Oldingi
+    </a>
+  {% endif %}
+  <span class="text-muted small">Sahifa {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+  {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}" class="btn btn-gradient">
+      Keyingi<i class="bi bi-chevron-right ms-1"></i>
+    </a>
+  {% endif %}
+</div>
+
+<script defer src="{% static 'js/uzbek-autoclasses.js' %}"></script>
+<script defer src="{% static 'js/uzbek-stars.js' %}"></script>
+{% endblock %}

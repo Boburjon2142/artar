@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% load static qparams %}
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'css/profile.css' %}?v=4">
+
+<style>
+/* === PROFILE HEADER === */
+.profile-header {
+    background: linear-gradient(90deg, #0083B0, #00B4DB);
+    padding: 40px 20px;
+    text-align: center;
+    border-radius: 12px;
+    color: white;
+    margin-bottom: 30px;
+}
+
+.profile-header img {
+    width: 220px;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 4px solid #fff;
+    margin-bottom: 15px;
+}
+
+/* === QUICK STATS === */
+.quick-stats {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    margin-top: 20px;
+}
+
+.quick-stat-box {
+    background: rgba(255,255,255,0.15);
+    padding: 12px 22px;
+    border-radius: 10px;
+    color: #fff;
+    min-width: 160px;
+    text-align: center;
+    backdrop-filter: blur(5px);
+}
+
+.quick-stat-label {
+    font-size: 14px;
+    opacity: .8;
+}
+
+.quick-stat-value {
+    font-size: 22px;
+    font-weight: bold;
+}
+
+/* === DIAGRAM === */
+.chart {
+    display: flex;
+    gap: 30px;
+    align-items: flex-end;
+    height: 260px;
+    padding: 20px;
+    background: rgba(255,255,255,0.8);
+    border-radius: 12px;
+}
+
+.chart-bar {
+    width: 70px;
+    background: rgba(0,123,255,0.85);
+    border-radius: 10px 10px 0 0;
+    cursor: pointer;
+    position: relative;
+    transition: .25s;
+}
+
+.chart-bar:hover {
+    background: rgba(0,90,210,1);
+    transform: scale(1.03);
+}
+
+.chart-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.85);
+    color: #fff;
+    padding: 6px 10px;
+    font-size: 12px;
+    border-radius: 6px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: .2s ease;
+    margin-bottom: 6px;
+}
+
+.chart-bar:hover .chart-tooltip {
+    opacity: 1;
+    margin-bottom: 12px;
+}
+
+.chart-value {
+    position: absolute;
+    bottom: -22px;
+    width: 100%;
+    font-size: 13px;
+    text-align: center;
+    color: #444;
+    font-weight: 600;
+}
+</style>
+
+<div class="container">
+
+    <!-- PROFILE HEADER -->
+    <div class="profile-header">
+        <img src="{{ user.profile.avatar.url|default:'/static/img/default-avatar.png' }}"
+             onerror="this.src='/static/img/default-avatar.png'" alt="Avatar">
+
+        <h2>{{ user.get_full_name|default:user.username }}</h2>
+        <div style="opacity:.8;">creator</div>
+
+        <div class="quick-stats">
+            <div class="quick-stat-box">
+                <div class="quick-stat-value">{{ total_arts }}</div>
+                <div class="quick-stat-label">E’lonlar</div>
+            </div>
+
+            <div class="quick-stat-box">
+                <div class="quick-stat-value">{{ total_views }}</div>
+                <div class="quick-stat-label">Ko‘rishlar</div>
+            </div>
+
+            <div class="quick-stat-box">
+                <div class="quick-stat-value">{{ avg_rating|floatformat:1 }}</div>
+                <div class="quick-stat-label">O‘rtacha reyting</div>
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <a href="{% url 'catalog:create' %}" class="btn btn-light">
+                <i class="bi bi-plus-circle"></i> Yangi e’lon qo‘shish
+            </a>
+            <a href="{% url 'accounts:profile_edit' %}" class="btn btn-outline-light">
+                <i class="bi bi-person"></i> Profilni tahrirlash
+            </a>
+        </div>
+    </div>
+
+    <!-- ELONLAR RO‘YXATI -->
+    <h3 class="mt-4 mb-3">Mening e’lonlarim</h3>
+
+    <div class="card shadow-sm mb-4">
+        <div class="list-group list-group-flush">
+
+            {% for art in arts %}
+            <a class="list-group-item list-group-item-action"
+               href="{% url 'catalog:detail' art.slug %}">
+                <div class="d-flex w-100 justify-content-between align-items-center">
+                    <h5 class="mb-1">{{ art.title }}</h5>
+                    <small class="text-muted">{{ art.created|date:"Y-m-d" }}</small>
+                </div>
+                <div class="small text-muted">
+                    Narx: {{ art.price }} so'm • Reyting: {{ art.avg_rating|default:0|floatformat:1 }}
+                    • Izohlar: {{ art.comments_count }} • Ko‘rishlar: {{ art.views_count }}
+                </div>
+            </a>
+            {% empty %}
+            <div class="card-body text-muted">E’lonlar mavjud emas.</div>
+            {% endfor %}
+
+        </div>
+    </div>
+
+    
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.chart-bar').forEach(function (bar) {
+        const h = bar.style.height;
+        bar.style.height = '0%';
+        setTimeout(() => {
+            bar.style.transition = 'height 1.2s ease';
+            bar.style.height = h;
+        }, 200);
+    });
+});
+</script>
+
+{% endblock %}

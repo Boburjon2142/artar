@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="alert alert-warning">
+  <h4>O‘chirishni tasdiqlang</h4>
+  <p>“{{ art.title }}” e’lonini o‘chirmoqchimisiz?</p>
+  <form method="post">
+    {% csrf_token %}
+    <a href="{% url 'catalog:detail' art.slug %}" class="btn btn-secondary">Bekor qilish</a>
+    <button class="btn btn-danger">O‘chirish</button>
+  </form>
+</div>
+{% endblock %}
+

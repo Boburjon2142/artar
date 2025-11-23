@@ -1,0 +1,127 @@
+{% load static %}
+{% load crispy_forms_tags %}
+<!doctype html>
+<html lang="uz">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ARTAR - hunarmandchilik mahsulotlari</title>
+
+    <link rel="icon" type="image/png" href="{% static 'img/favicon_32.png' %}">
+<link rel="apple-touch-icon" href="{% static 'img/favicon_180.png' %}">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="{% static 'css/site.css' %}?v=999">
+  </head>
+
+  <body class="uzb-bg">
+
+    <!-- ===================== NAVBAR ===================== -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm">
+      <div class="container-fluid">
+
+        <!-- Brand -->
+        <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+          <img src="{% static 'img/logo.png' %}" alt="ARTAR" class="brand-badge">
+          <span class="brand-text fw-bold text-white">ARTAR</span>
+        </a>
+
+        <!-- Toggler -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- NAV CONTENT -->
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+          <!-- ==== SEARCH + BUTTONS ==== -->
+          <form class="search-bar d-flex align-items-center mt-3 mt-lg-0 ms-lg-auto w-100"
+                method="get" action="/">
+
+            <!-- INPUT -->
+            <input id="navSearch"
+                   class="form-control search-input navbar-search flex-grow-1"
+                   type="search"
+                   name="title"
+                   placeholder="Qidiruv"
+                   autocomplete="off">
+
+            <!-- Qidir / Filter -->
+            <div class="btn-group ms-2 flex-shrink-0">
+              <button type="submit" class="btn btn-gradient btn-mini">Qidir</button>
+
+              <button id="filterToggleBtn" type="button" class="btn btn-gradient btn-mini">
+                <i class="bi bi-funnel"></i>
+              </button>
+            </div>
+
+          </form>
+
+          <!-- PROFILE LINKS -->
+          <ul class="navbar-nav ms-lg-3 mt-3 mt-lg-0">
+            {% if user.is_authenticated %}
+              <li class="nav-item"><a class="nav-link" href="{% url 'accounts:dashboard' %}">Profil</a></li>
+              <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Chiqish</a></li>
+            {% else %}
+              <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Kirish</a></li>
+              <li class="nav-item"><a class="nav-link" href="{% url 'accounts:register' %}">Ro‘yxatdan o‘tish</a></li>
+            {% endif %}
+          </ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <!-- ===================== MAIN CONTENT ===================== -->
+    <main class="container py-4">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+      {% block content %}{% endblock %}
+    </main>
+
+    <!-- ===================== FOOTER ===================== -->
+<footer class="footer footer-advanced mt-auto">
+  <div class="container py-5">
+
+    <div class="row g-4">
+      <div class="col-12 col-md-auto">
+        <div class="footer-brand d-flex align-items-center gap-2">
+          <img src="{% static 'img/logo.png' %}" class="brand-badge-lg">
+          <span><b>ARTAR</b></span>
+        </div>
+        <p class="footer-text">O‘zbek san’ati uchun yaratilgan platforma</p>
+      </div>
+
+      <div class="col-12 col-md-auto">
+        <div class="footer-heading">Ijtimoiy tarmoqlar</div>
+
+        <!-- YANGILANGAN 2 TA LINK — YONMA-YON -->
+        <div class="social-links-inline">
+          <a class="social-btn" target="_blank" href="https://t.me/artar_uz">
+            <i class="bi bi-telegram"></i> Telegram
+          </a>
+
+          <a class="social-btn" target="_blank" href="https://www.instagram.com/artar.uz">
+            <i class="bi bi-instagram"></i> Instagram
+          </a>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="footer-bottom small mt-4 d-flex justify-content-between">
+      <div>© {% now 'Y' %} ARTAR</div>
+      <div class="opacity-75">Sevgi bilan yaratilgan</div>
+    </div>
+
+  </div>
+</footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/site.js' %}?v=5"></script>
+
+  </body>
+</html>

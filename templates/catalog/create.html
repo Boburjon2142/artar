@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load static crispy_forms_tags %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/create.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+<div class="form-container">
+  <div class="form-card">
+    <div class="form-header">
+      <h1 class="form-title">Yangi e'lon yaratish</h1>
+      <p class="form-subtitle">Asaringizni jamiyat bilan baham ko'ring</p>
+    </div>
+
+    <div class="form-content">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {# Asosiy ma'lumotlar #}
+        <div class="form-section">
+          <h3 class="section-title">Asosiy ma'lumotlar</h3>
+          {% if form %}
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% endif %}
+            {% if form|length %}
+              {# If using crispy, render nicely #}
+              {% if form|attr:'helper' or form|attr:'layout' %}
+                {{ form|crispy }}
+              {% else %}
+                <div class="row g-3">
+                  {% for field in form.visible_fields %}
+                    <div class="col-12 {% if field.field.widget.input_type != 'textarea' %}col-md-6{% endif %}">
+                      <label class="form-label {% if field.field.required %}required{% endif %}" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                      {{ field }}
+                      {% if field.errors %}<div class="text-danger small">{{ field.errors|striptags }}</div>{% endif %}
+                    </div>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            {% else %}
+              {{ form|crispy }}
+            {% endif %}
+          {% else %}
+            <div class="alert alert-info">Forma konteksti topilmadi. View’dan <code>form</code> yuborilganini tekshiring.</div>
+          {% endif %}
+        </div>
+
+        {# Rasmlar (formset bo'lsa) #}
+        {% if image_formset %}
+        <div class="form-section">
+          <h3 class="section-title">Rasmlar (eng ko'pi 3 ta)</h3>
+          {{ image_formset.management_form }}
+          <div class="image-upload-grid">
+            {% for f in image_formset.forms %}
+              <div class="image-upload-card">
+                {{ f.id }}
+                <label class="d-block w-100">
+                  {{ f.image }}
+                </label>
+                <img class="image-preview" alt="Preview">
+                <div class="upload-icon"><i class="bi bi-cloud-arrow-up"></i></div>
+                <div class="upload-text">Rasm yuklash</div>
+                <div class="upload-hint">PNG, JPG yoki WEBP</div>
+                <div class="mt-3">
+                  <label class="form-label">Tartib raqami</label>
+                  {{ f.order|default_if_none:0 }}
+                </div>
+                {% if f.DELETE %}
+                  <button type="button" class="delete-btn" onclick="this.closest('.image-upload-card').querySelector('input[type=\'file\']').value=''; this.closest('.image-upload-card').classList.remove('has-image');">
+                    <i class="bi bi-trash me-1"></i>O'chirish
+                  </button>
+                  {{ f.DELETE }}
+                {% else %}
+                  <button type="button" class="delete-btn"><i class="bi bi-trash me-1"></i>O'chirish</button>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <div class="form-actions">
+          <button type="submit" class="btn-gradient"><i class="bi bi-check-circle me-2"></i>Saqlash</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script defer src="{% static 'js/create-images.js' %}"></script>
+{% endblock %}
+

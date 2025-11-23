@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/create.css' %}">
+
+<div class="form-page d-flex justify-content-center align-items-center py-4">
+  <div class="form-card shadow-lg p-4 rounded-4" style="max-width:700px; width:100%; background:white;">
+    
+    <h3 class="text-center mb-4 fw-bold text-gradient">
+      {% if is_create %}🎨 Artwork yaratish{% else %}✏️ Artwork tahrirlash{% endif %}
+    </h3>
+
+    <form method="post" enctype="multipart/form-data" novalidate>
+      {% csrf_token %}
+
+      <!-- Asosiy forma maydonlari -->
+      <div class="mb-3">
+        {{ form.title|as_crispy_field }}
+      </div>
+
+      <div class="mb-3">
+        {{ form.price|as_crispy_field }}
+      </div>
+
+      <div class="mb-3">
+        {{ form.description|as_crispy_field }}
+      </div>
+
+      <div class="mb-3">
+        {{ form.contact|as_crispy_field }}
+      </div>
+
+      <!-- Yangi qo‘shilgan ixtiyoriy Telegram maydoni -->
+      <div class="mb-3">
+        {{ form.telegram.label_tag }}
+        {{ form.telegram }}
+        <small class="text-muted">Ixtiyoriy: foydalanuvchilar siz bilan to‘g‘ridan-to‘g‘ri Telegram orqali bog‘lanishlari mumkin (@username shaklida).</small>
+      </div>
+
+      <div class="mb-3">
+        {{ form.category|as_crispy_field }}
+      </div>
+
+      <!-- Rasmlar bo‘limi -->
+      <div class="mt-4">
+        <h5 class="fw-semibold mb-3">🖼️ Rasmlar (eng ko‘pi 3 ta)</h5>
+        {{ formset.management_form }}
+        <div class="row g-3">
+          {% for f in formset %}
+            <div class="col-md-6">
+              <div class="p-2 border rounded-3 bg-light-subtle">
+                {{ f|crispy }}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Tugmalar -->
+      <div class="text-center mt-4">
+        <button type="submit" class="btn btn-gradient px-4 py-2 fw-semibold">
+          💾 Saqlash
+        </button>
+        <a href="{% url 'catalog:home' %}" class="btn btn-outline-secondary ms-2">
+          Bekor qilish
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

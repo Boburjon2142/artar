@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-5">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h3 class="mb-3">Kirish</h3>
+        <form method="post">
+          {% csrf_token %}
+          {{ form|crispy }}
+          <button class="btn btn-primary w-100">Kirish</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

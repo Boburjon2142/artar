@@ -1,0 +1,83 @@
+/* Profile/Dashboard cosmetic theme (Uzbek style). No functional changes. */
+:root {
+  --primary-color: #00A79D;
+  --secondary-color: #1F4788;
+  --accent-color: #B03A2E;
+  --gold-color: #D4AF37;
+  --background-light: #FDFDF6;
+}
+
+/* Container + cards */
+.profile-container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+.profile-card, .dashboard-card, .card.uzbek-card { background: #fff; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,.08); overflow: hidden; }
+.profile-card::before, .dashboard-card::before { content: ""; position: absolute; top:0; left:0; right:0; height:8px; background: linear-gradient(90deg, var(--primary-color), var(--gold-color), var(--accent-color)); }
+
+/* Header */
+.profile-header, .dashboard-header { background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color:#fff; padding: 2rem; text-align:center; position: relative; }
+.user-name { font-family: "Cormorant Garamond", serif; font-size: 2rem; font-weight: 600; }
+.user-role { background: rgba(255,255,255,.2); padding:.35rem 1rem; border-radius: 25px; display:inline-block; font-size:.9rem; }
+
+/* Avatar */
+.avatar-img { width: 120px; height: 120px; border-radius: 50%; border: 5px solid #fff; box-shadow: 0 8px 25px rgba(0,0,0,.2); object-fit: cover; }
+
+/* Info grid */
+.info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; }
+.info-card { background: var(--background-light); border-radius: 15px; padding: 1rem 1.25rem; border-left: 4px solid var(--primary-color); }
+.info-card h3 { font-family: "Cormorant Garamond", serif; color: var(--secondary-color); font-size: 1.1rem; margin-bottom: .75rem; display:flex; align-items:center; gap:.5rem; }
+.info-item { display:flex; align-items:center; gap:.75rem; padding:.6rem 0; border-bottom:1px solid #eee; }
+.info-item:last-child { border-bottom: none; }
+.info-icon { color: var(--primary-color); font-size: 1.1rem; width: 24px; text-align:center; }
+
+/* Buttons */
+.btn-gradient { background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color:#fff !important; border:none; border-radius: 50px; padding:.6rem 1.4rem; font-weight:500; }
+.btn-gradient:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,.15); }
+
+/* Stats / progress helpers */
+.uzbek-stats { color: var(--secondary-color); }
+.uzbek-progress .progress-bar { background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: .75rem; margin: 1rem 0 2rem; }
+.stat-card { background: #fff; border: 1px solid #f0f0f0; border-radius: 12px; padding: .9rem 1rem; box-shadow: 0 4px 14px rgba(0,0,0,.05); text-align: center; }
+.stat-card .stat-label { color: #666; font-size: .85rem; }
+.stat-card .stat-value { font-size: 1.6rem; font-weight: 700; color: var(--secondary-color); }
+
+/* Footer tone (optional) */
+.dashboard-footer { background: linear-gradient(135deg, var(--secondary-color), var(--primary-color)); color:#fff; padding: 2rem 0; margin-top: 2rem; }
+
+/* Responsive tweaks */
+@media (max-width: 768px){
+  .avatar-img { width: 96px; height: 96px; }
+}
+
+/* Profile edit / account forms spacing (safe, cosmetic) */
+.account-form-container { max-width: 1200px; margin: 2rem auto; padding: 0 1.25rem; }
+.account-form-container .row { row-gap: 1.25rem; }
+.account-form-container .card { border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,.06); padding: 1.25rem; }
+.account-form-container h1, .account-form-container .page-title { margin: .75rem 0 1.25rem; }
+.account-form-container .form-control { border-radius: 10px; }
+.account-form-container .btn { border-radius: 10px; }
+.account-form-container .form-control,
+.account-form-container textarea.form-control,
+.account-form-container select.form-select {
+  padding: 1rem 1.1rem;              /* inner spacing so text stays away from borders */
+  background-color: #ffffff;          /* ensure white fill inside */
+  border: 1px solid #e6e6e6;         /* soft border */
+  border-radius: 12px;                /* slightly rounder corners */
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.03);
+}
+.account-form-container textarea.form-control { min-height: 180px; }
+.account-form-container .form-control:focus,
+.account-form-container .form-select:focus,
+.account-form-container textarea.form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.15rem rgba(0, 167, 157, 0.15);
+}
+.account-form-container .form-label { margin-bottom: .5rem; }
+.account-form-container form { margin-top: .5rem; }
+.account-form-container .form-group, 
+.account-form-container .mb-3, 
+.account-form-container .form-row { margin-bottom: 1rem !important; }
+.account-form-container .form-actions { margin-top: 1rem; }
+
+/* Optional sidebar spacing if present */
+.account-form-container .profile-sidebar { margin-right: 1rem; }
+.account-form-container .profile-summary { padding: 1rem; border-radius: 12px; background: #fff; box-shadow: 0 6px 18px rgba(0,0,0,.06); }

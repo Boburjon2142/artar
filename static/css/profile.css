@@ -1,0 +1,90 @@
+/* ===========================
+   PROFILE EDIT — AVATAR FIXES
+   =========================== */
+
+.avatar-container {
+  width: 100%;
+  max-width: 230px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.avatar-img {
+  width: 230px;
+  height: 230px;
+  object-fit: cover;
+  border-radius: 14px;
+  display: block;
+  margin: 0 auto;
+  border: 5px solid #fff;
+  box-shadow: 0 8px 25px rgba(0,0,0,.15);
+}
+
+.avatar-placeholder {
+  width: 230px;
+  height: 230px;
+  border-radius: 14px;
+  background: #eee;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  margin: 0 auto;
+  box-shadow: 0 8px 25px rgba(0,0,0,.1);
+}
+
+.avatar-upload { display: none !important; }
+
+.profile-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 28px rgba(0,0,0,.08);
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.profile-form {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 28px rgba(0,0,0,.06);
+  padding: 2rem;
+}
+
+/* ===========================
+   DASHBOARD RESPONSIVE FIXES
+   =========================== */
+
+/* Avatar kichraytirish (header) */
+@media (max-width: 768px){
+  .profile-header img {
+    width: 150px !important;
+    height: 150px !important;
+  }
+}
+
+/* O‘rtacha reytingni yashirish */
+@media (max-width: 768px){
+  .quick-stats .quick-stat-box:nth-child(3) {
+    display: none !important;
+  }
+}
+
+/* Stats mobile layout */
+@media (max-width: 768px){
+  .quick-stats {
+    flex-wrap: wrap !important;
+    gap: 15px !important;
+  }
+
+  .quick-stat-box {
+    min-width: 45% !important;
+  }
+}
+
+/* Avatar edit responsive */
+@media (max-width: 768px){
+  .avatar-img,
+  .avatar-placeholder {
+    width: 180px;
+    height: 180px;
+  }
+}
