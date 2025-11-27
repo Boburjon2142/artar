@@ -129,3 +129,7 @@ ARTAR — O‘zbekiston san’atkorlari uchun rasm, video, galereya, reyting va 
 - Bootstrap 5  
 - Media & Static management  
 - Uzbek national UI  
+
+## 🤖 AI Moderation & Content Assist
+- Moderation: OpenAI text + vision checks (toxicity/unsafe images) and duplicate-title detection on create/update. Configure `.env` with `OPENAI_API_KEY`, optional thresholds `MODERATION_THRESHOLD`, `MODERATION_DUP_THRESHOLD`.
+- Content Assist: “AI suggest” on the create form generates suggested title/description/tags/style/hashtags from text and uploaded images. Requires `OPENAI_API_KEY`.

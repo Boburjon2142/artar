@@ -15,5 +15,4 @@ class RegistrationForm(UserCreationForm):
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ("contact", "bio", "avatar", "telegram", "instagram", "youtube")
-
+        fields = ("phone", "contact", "bio", "avatar", "telegram", "instagram", "youtube")

@@ -114,8 +114,11 @@
 
     <!-- PROFILE HEADER -->
     <div class="profile-header">
-        <img src="{{ user.profile.avatar.url|default:'/static/img/default-avatar.png' }}"
-             onerror="this.src='/static/img/default-avatar.png'" alt="Avatar">
+        {% if user.profile.avatar %}
+        <img src="{{ user.profile.avatar.url }}" alt="Avatar">
+        {% else %}
+        <img src="{% static 'img/default-avatar.png' %}" alt="Avatar">
+        {% endif %}
 
         <h2>{{ user.get_full_name|default:user.username }}</h2>
         <div style="opacity:.8;">creator</div>

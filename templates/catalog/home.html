@@ -1,9 +1,27 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static humanize %}
 {% block content %}
 
 <link rel="stylesheet" href="{% static 'css/uzbek.css' %}">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+<style>
+/* Kartochkadagi rasm qirqilmasin, kvadratga yaqin karta */
+.product-card {
+    border-radius: 16px;
+}
+.product-card .card-body {
+    border-radius: 0 0 16px 16px;
+}
+.product-card .card-img-top {
+    border-radius: 16px 16px 0 0;
+    height: 220px;
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+    background: #fafafa;
+    padding: 6px;
+}
+</style>
 
 <!-- === FILTER BOX (NAVBAR tugmasi bilan ochiladi) === -->
 <div id="filterBox" class="accordion mb-3 filter-section uzbek-card d-none">
@@ -19,7 +37,7 @@
           <!-- Kategoriya -->
           <div class="col-md-2">
             <select name="category" class="form-select filter-input uzbek-input">
-              <option value="">Kategoriya</option>
+              <option value="">Katalog</option>
               {% for c in categories %}
               <option value="{{ c.slug }}">
                 {% if c.name == "Ijod namunalari" %}
@@ -108,13 +126,8 @@
               {{ art.title }}
             </h5>
 
-            <div class="mb-2 price uzbek-price">
-              <i class="bi bi-currency-dollar me-1"></i>
-              Narx: <strong>{{ art.price }}</strong> so'm
-            </div>
-
-            <div class="mb-2 product-rating uzbek-rating">
-              ⭐ {{ art.avg_rating|default:0|floatformat:1 }} • 👁️ {{ art.views_count }}
+            <div class="mb-3 price uzbek-price">
+              Narx: <strong>{{ art.price|floatformat:0|intcomma }}</strong> so'm
             </div>
 
             {% if art.slug %}

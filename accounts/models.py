@@ -9,6 +9,7 @@ def avatar_upload_to(instance, filename):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    phone = models.CharField(max_length=50, blank=True, default='')
     contact = models.CharField(max_length=255, blank=True)
     bio = models.TextField(blank=True)
     avatar = models.ImageField(upload_to=avatar_upload_to, blank=True, null=True)
@@ -18,4 +19,3 @@ class Profile(models.Model):
 
     def __str__(self):
         return f"Profile of {self.user.username}"
-

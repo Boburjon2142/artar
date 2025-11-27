@@ -7,14 +7,14 @@ from .models import Artwork, ArtworkImage, Rating, Comment
 class ArtworkForm(forms.ModelForm):
     class Meta:
         model = Artwork
-        fields = ['title', 'price', 'description', 'contact', 'telegram', 'category']
+        fields = ['title', 'price', 'description', 'contact', 'telegram', 'dimensions']
         labels = {
             'title': "Asar nomi",
             'price': "Narx (so'm)",
             'description': "Tavsif",
             'contact': "Aloqa raqami",
             'telegram': "Telegram manzili (ixtiyoriy)",
-            'category': "Kategoriya",
+            'dimensions': "Asar o'lchami",
         }
         widgets = {
             'title': forms.TextInput(attrs={
@@ -39,8 +39,9 @@ class ArtworkForm(forms.ModelForm):
                 'placeholder': '@username (ixtiyoriy)',
                 'class': 'form-control'
             }),
-            'category': forms.Select(attrs={
-                'class': 'form-select'
+            'dimensions': forms.TextInput(attrs={
+                'placeholder': "Masalan: 30x40 sm",
+                'class': 'form-control'
             }),
         }
 
@@ -60,7 +61,7 @@ class ArtworkForm(forms.ModelForm):
 
     # --- TELEGRAM MAYDONINI TOZALASH VA FORMATLASH ---
     def clean_telegram(self):
-        telegram = self.cleaned_data.get('telegram', '').strip()
+        telegram = (self.cleaned_data.get('telegram') or '').strip()
         if telegram:
             # agar foydalanuvchi faqat username kiritsa
             if not telegram.startswith('@') and 't.me/' not in telegram:

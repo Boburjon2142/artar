@@ -53,6 +53,7 @@ class Artwork(models.Model):
         null=True,
         verbose_name="Telegram manzili (ixtiyoriy)"
     )
+    dimensions = models.CharField(max_length=120, blank=True, default='', verbose_name="Asar o'lchami")
     image = models.ImageField(upload_to='artworks/', blank=True, null=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name='artworks')
     created = models.DateTimeField(auto_now_add=True)

@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
 
     'crispy_forms',
     'crispy_bootstrap5',
@@ -41,6 +42,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -127,10 +129,12 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-LANGUAGE_CODE = 'uz'
+LANGUAGE_CODE = 'en'
 TIME_ZONE = 'Asia/Tashkent'
 USE_I18N = True
 USE_TZ = True
+LANGUAGES = [('en', 'English')]
+LOCALE_PATHS = [BASE_DIR / 'locale']
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
@@ -185,3 +189,13 @@ LOGGING = {
         'level': 'INFO',
     },
 }
+
+# Telegram bot config (used for order notifications)
+TELEGRAM_BOT_TOKEN = get_env('TELEGRAM_BOT_TOKEN', '')
+TELEGRAM_CHAT_ID = get_env('TELEGRAM_CHAT_ID', '')
+
+# OpenAI moderation
+OPENAI_API_KEY = get_env('OPENAI_API_KEY', '')
+MODERATION_ENABLED = bool(OPENAI_API_KEY)
+MODERATION_THRESHOLD = float(get_env('MODERATION_THRESHOLD', '0.2'))
+MODERATION_DUP_THRESHOLD = float(get_env('MODERATION_DUP_THRESHOLD', '0.9'))

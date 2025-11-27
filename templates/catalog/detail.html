@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static crispy_forms_tags qparams %}
+{% load static crispy_forms_tags qparams humanize %}
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/uzbek.css' %}">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
@@ -13,11 +13,15 @@
     border-radius: 14px;
     background: #fafafa;
     border: 1px solid #e5e5e5;
+    display: grid;
+    place-items: center;
   }
   .artar-frame img {
     width: 100%;
     height: 100%;
-    object-fit: cover;           /* professional ko‘rinish */
+    object-fit: contain;         /* rasm qirqilmaydi, to‘liq ko‘rinadi */
+    background: #fafafa;
+    padding: 8px;
   }
 </style>
 
@@ -98,56 +102,35 @@
 
         <div class="uzbek-info-list">
           <div class="uzbek-info-item">
-            <i class="bi bi-currency-dollar uzbek-info-icon"></i>
             <div class="uzbek-info-content">
               <span class="uzbek-info-label">Narx:</span>
-              <strong class="uzbek-price">{{ art.price }} so'm</strong>
+              <strong class="uzbek-price">{{ art.price|floatformat:0|intcomma }} so'm</strong>
             </div>
           </div>
 
           <div class="uzbek-info-item">
-            <i class="bi bi-telephone uzbek-info-icon"></i>
+            <i class="bi bi-bag-check uzbek-info-icon"></i>
             <div class="uzbek-info-content">
-              <span class="uzbek-info-label">Aloqa:</span>
-              {% if art.contact %}
-                <a href="{{ art.contact|phone_href }}" style="text-decoration:none">{{ art.contact }}</a>
-              {% else %}—{% endif %}
+              <span class="uzbek-info-label">Buyurtma:</span>
+              {% if user.is_authenticated %}
+                <form method="post" class="d-inline-block">
+                  {% csrf_token %}
+                  <input type="hidden" name="order_submit" value="1">
+                  <button class="btn btn-success btn-sm">Buyurtma berish</button>
+                </form>
+              {% else %}
+                <small class="text-muted">Buyurtma berish uchun <a href="{% url 'login' %}">login</a> qiling.</small>
+              {% endif %}
             </div>
           </div>
 
-          {% if art.telegram %}
           <div class="uzbek-info-item">
-            <i class="bi bi-telegram uzbek-info-icon text-primary"></i>
+            <i class="bi bi-aspect-ratio uzbek-info-icon"></i>
             <div class="uzbek-info-content">
-              <span class="uzbek-info-label">Telegram:</span>
-              <a href="https://t.me/{{ art.telegram|cut:'@' }}" target="_blank" class="telegram-badge-link">
-                <span class="telegram-badge">
-                  <i class="bi bi-telegram"></i> @{{ art.telegram|cut:'@' }}
-                </span>
-              </a>
+              <span class="uzbek-info-label">O'lchami:</span>
+              <span class="badge bg-secondary">{{ art.dimensions|default:"—" }}</span>
             </div>
           </div>
-          {% endif %}
-
-          {% if art.author %}
-          <div class="uzbek-info-item">
-            <i class="bi bi-person uzbek-info-icon"></i>
-            <div class="uzbek-info-content">
-              <span class="uzbek-info-label">E'lon egasi:</span>
-              <strong>{{ art.author.get_full_name|default:art.author.username }}</strong>
-            </div>
-          </div>
-          {% endif %}
-
-          {% if art.category %}
-          <div class="uzbek-info-item">
-            <i class="bi bi-tag uzbek-info-icon"></i>
-            <div class="uzbek-info-content">
-              <span class="uzbek-info-label">Kategoriya:</span>
-              <span class="badge bg-primary">{{ art.category }}</span>
-            </div>
-          </div>
-          {% endif %}
 
           <div class="uzbek-info-item">
             <i class="bi bi-star uzbek-info-icon"></i>
@@ -156,6 +139,30 @@
               <span class="uzbek-rating">⭐ {{ avg_rating|floatformat:1 }}</span>
             </div>
           </div>
+
+          {% if user.is_authenticated %}
+          <div class="mt-2">
+            <form method="post" class="rating-inline-form">
+              {% csrf_token %}
+              <div class="d-flex align-items-center flex-wrap gap-3">
+                <strong class="me-2 mb-1">Baholang:</strong>
+                <div class="star-rating mb-1">
+                  {% for star in star_range %}
+                    <input type="radio" name="value" id="star{{ star }}" value="{{ star }}" {% if user_rating == star %}checked{% endif %}>
+                    <label for="star{{ star }}" title="{{ star }} yulduz">&#9733;</label>
+                  {% endfor %}
+                </div>
+                <button type="submit" name="rating_submit" class="btn btn-sm btn-primary">
+                  ⭐ Saqlash
+                </button>
+              </div>
+            </form>
+          </div>
+          {% else %}
+          <div class="mt-2 text-muted small">
+            Reyting berish uchun <a href="{% url 'login' %}">login</a> qiling.
+          </div>
+          {% endif %}
 
           <div class="uzbek-info-item">
             <i class="bi bi-eye uzbek-info-icon"></i>
@@ -172,28 +179,24 @@
           <p class="mb-0 uzbek-text">{{ art.description|linebreaks }}</p>
         </div>
         {% endif %}
+
+        {% if ai_suggestions %}
+        <div class="uzbek-description mt-4 p-3 rounded bg-light">
+          <h6 class="d-flex align-items-center mb-2">
+            <i class="bi bi-magic me-2"></i> AI content insights
+          </h6>
+          {% if ai_suggestions.title %}<div><strong>Title:</strong> {{ ai_suggestions.title }}</div>{% endif %}
+          {% if ai_suggestions.description %}<div><strong>Description:</strong> {{ ai_suggestions.description }}</div>{% endif %}
+          {% if ai_suggestions.style %}<div><strong>Style:</strong> {{ ai_suggestions.style }}</div>{% endif %}
+          {% if ai_suggestions.category %}<div><strong>Category:</strong> {{ ai_suggestions.category }}</div>{% endif %}
+          {% if ai_suggestions.tags %}<div><strong>Tags:</strong> {{ ai_suggestions.tags|join:", " }}</div>{% endif %}
+          {% if ai_suggestions.hashtags %}<div><strong>Hashtags:</strong> #{{ ai_suggestions.hashtags|join:" #"}} </div>{% endif %}
+          {% if ai_suggestions.summary %}<div class="mt-2"><strong>Summary:</strong> {{ ai_suggestions.summary }}</div>{% endif %}
+          <div class="small text-muted mt-2">Language: {{ request.GET.lang|default:request.LANGUAGE_CODE|default:"en" }}</div>
+        </div>
+        {% endif %}
       </div>
     </div>
-  </div>
-</div>
-
-<!-- ⭐ Reyting -->
-<div class="card shadow-sm uzbek-card mt-4">
-  <div class="card-header uzbek-card-header">
-    <h5 class="mb-0"><i class="bi bi-star-half me-2"></i>Reyting berish</h5>
-  </div>
-  <div class="card-body">
-    {% if user.is_authenticated %}
-      <form method="post">
-        {% csrf_token %}
-        {{ rating_form.value|as_crispy_field }}
-        <button type="submit" name="rating_submit" class="btn btn-primary mt-2">
-          ⭐ Reytingni saqlash
-        </button>
-      </form>
-    {% else %}
-      <p class="text-muted">Reyting berish uchun <a href="{% url 'login' %}">login</a> qiling.</p>
-    {% endif %}
   </div>
 </div>
 
@@ -259,4 +262,25 @@
 
 <script defer src="{% static 'js/uzbek-autoclasses.js' %}"></script>
 <script defer src="{% static 'js/uzbek-stars.js' %}"></script>
+<style>
+.star-rating {
+  display: inline-flex;
+  flex-direction: row-reverse;
+  gap: 8px;
+}
+.star-rating input {
+  display: none;
+}
+.star-rating label {
+  font-size: 30px;
+  color: #d3d3d3;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+.star-rating label:hover,
+.star-rating label:hover ~ label,
+.star-rating input:checked ~ label {
+  color: #f6c344;
+}
+</style>
 {% endblock %}

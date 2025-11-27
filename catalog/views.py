@@ -4,9 +4,20 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Avg, Count
+from django.conf import settings
+from django.urls import reverse
+import urllib.request
+import urllib.parse
+import json
+import logging
 
 from .models import Artwork, Category, Rating, Comment, ArtworkView
 from .forms import ArtworkForm, ArtworkImageFormSet, RatingForm, CommentForm
+from .moderation import moderate_content
+from .ai_content import analyze_content
+
+
+logger = logging.getLogger(__name__)
 
 
 # 🧠 IP olish yordamchi funksiyasi
@@ -15,6 +26,32 @@ def get_client_ip(request):
     if x_forwarded_for:
         return x_forwarded_for.split(',')[0]
     return request.META.get('REMOTE_ADDR', '')
+
+
+def send_order_to_telegram(message: str) -> bool:
+    """Minimal Telegram sendMessage helper without external deps."""
+    token = getattr(settings, 'TELEGRAM_BOT_TOKEN', '')
+    chat_id = getattr(settings, 'TELEGRAM_CHAT_ID', '')
+    if not token or not chat_id:
+        logger.warning("Telegram config missing: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID")
+        return False
+
+    try:
+        url = f'https://api.telegram.org/bot{token}/sendMessage'
+        payload = json.dumps({'chat_id': chat_id, 'text': message})
+        req = urllib.request.Request(
+            url,
+            data=payload.encode(),
+            headers={'Content-Type': 'application/json'},
+        )
+        with urllib.request.urlopen(req, timeout=6) as resp:
+            ok = 200 <= getattr(resp, 'status', 500) < 300
+            if not ok:
+                logger.error("Telegram send failed with status %s", getattr(resp, 'status', 'unknown'))
+            return ok
+    except Exception as exc:
+        logger.exception("Telegram order notification failed: %s", exc)
+        return False
 
 
 # 🏠 Bosh sahifa (TO‘LIQ TUZATILGAN)
@@ -100,8 +137,64 @@ def art_detail(request, slug):
     avg_rating = art.ratings.aggregate(r=Avg('value'))['r'] or 0
     views_count = art.views.count()
 
+    ai_suggestions = {}
+    lang = request.GET.get('lang') or getattr(request, 'LANGUAGE_CODE', 'en') or 'en'
+    if settings.OPENAI_API_KEY:
+        images_bytes = []
+
+        def _read_file(file_field):
+            try:
+                with file_field.open('rb') as fp:
+                    return fp.read()
+            except Exception:
+                return None
+
+        if art.image:
+            data = _read_file(art.image)
+            if data:
+                images_bytes.append(data)
+
+        for img in art.images.all()[:2]:
+            if img.image:
+                data = _read_file(img.image)
+                if data:
+                    images_bytes.append(data)
+
+        try:
+            ai_suggestions = analyze_content(
+                art.title or '',
+                art.description or '',
+                images_bytes,
+                target_lang=lang,
+            ) or {}
+        except Exception:
+            ai_suggestions = {}
+
     # POST: Reyting & Izoh
     if request.method == 'POST':
+
+        # 🛒 Buyurtma tugmasi
+        if 'order_submit' in request.POST:
+            buyer = request.user if request.user.is_authenticated else None
+            seller = art.author
+            buyer_phone = getattr(getattr(buyer, 'profile', None), 'phone', '') if buyer else '-'
+            seller_phone = getattr(getattr(seller, 'profile', None), 'phone', '') or '-'
+            link = request.build_absolute_uri(reverse('catalog:detail', args=[art.slug]))
+
+            msg = (
+                "🛒 Yangi buyurtma\n"
+                f"Asar: {art.title}\n"
+                f"Havola: {link}\n"
+                f"Buyurtmachi: {buyer.username if buyer else 'Anonim'}\n"
+                f"Email: {buyer.email if buyer and buyer.email else '-'}\n"
+                f"Telefon: {buyer_phone or '-'}\n"
+                f"E'lon egasi: {seller.username}\n"
+                f"Email: {seller.email or '-'}\n"
+                f"Telefon: {seller_phone}\n"
+            )
+
+            send_order_to_telegram(msg)
+            return redirect('catalog:detail', slug=slug)
 
         # ⭐ Reyting
         if 'rating_submit' in request.POST:
@@ -136,6 +229,11 @@ def art_detail(request, slug):
                 return redirect('catalog:detail', slug=slug)
 
     rating_form = RatingForm()
+    user_rating = 0
+    if request.user.is_authenticated:
+        existing_rating = Rating.objects.filter(artwork=art, user=request.user).first()
+        if existing_rating:
+            user_rating = existing_rating.value
     comment_form = CommentForm()
 
     comments_qs = art.comments.select_related('user').order_by('-created')
@@ -148,8 +246,11 @@ def art_detail(request, slug):
         'avg_rating': avg_rating,
         'views_count': views_count,
         'rating_form': rating_form,
+        'user_rating': user_rating,
+        'star_range': [5, 4, 3, 2, 1],
         'comment_form': comment_form,
         'comments_page': comments_page,
+        'ai_suggestions': ai_suggestions,
     }
     return render(request, 'catalog/detail.html', ctx)
 
@@ -178,11 +279,66 @@ def comment_delete(request, pk):
 # ➕ E'lon yaratish
 @login_required
 def art_create(request):
+    ai_suggestions = {}
+
     if request.method == 'POST':
         form = ArtworkForm(request.POST)
         formset = ArtworkImageFormSet(request.POST, request.FILES)
 
+        if 'ai_suggest' in request.POST:
+            if not settings.OPENAI_API_KEY:
+                messages.error(request, "AI suggestions unavailable (API key missing).")
+            else:
+                images_bytes = []
+                for f in formset.forms:
+                    img = f.files.get('image') if hasattr(f, 'files') else None
+                    if img:
+                        data = img.read()
+                        img.seek(0)
+                        images_bytes.append(data)
+                try:
+                    ai_suggestions = analyze_content(
+                        form.data.get('title', ''),
+                        form.data.get('description', ''),
+                        images_bytes,
+                    )
+                    if ai_suggestions:
+                        messages.info(request, "AI suggestions generated.")
+                    else:
+                        messages.warning(request, "AI suggestions unavailable right now. Please try again later.")
+                except Exception as exc:
+                    logger.exception("AI suggest failed: %s", exc)
+                    messages.error(request, "AI suggestions failed. Please try again later.")
+            return render(request, 'catalog/form.html', {
+                'form': form,
+                'formset': formset,
+                'is_create': True,
+                'ai_suggestions': ai_suggestions,
+            })
+
         if form.is_valid() and formset.is_valid():
+            images_bytes = []
+            for f in formset.forms:
+                img = f.cleaned_data.get('image') if hasattr(f, 'cleaned_data') else None
+                if img:
+                    data = img.read()
+                    img.seek(0)
+                    images_bytes.append(data)
+
+            ok, reason = moderate_content(
+                form.cleaned_data.get('title', ''),
+                form.cleaned_data.get('description', ''),
+                images_bytes,
+                Artwork.objects.values_list('title', flat=True),
+            )
+            if not ok:
+                messages.error(request, reason)
+                return render(request, 'catalog/form.html', {
+                    'form': form,
+                    'formset': formset,
+                    'is_create': True,
+                })
+
             art = form.save(commit=False)
             art.author = request.user
             art.save()
@@ -201,6 +357,7 @@ def art_create(request):
         'form': form,
         'formset': formset,
         'is_create': True,
+        'ai_suggestions': ai_suggestions,
     })
 
 
@@ -218,6 +375,28 @@ def art_update(request, slug):
         formset = ArtworkImageFormSet(request.POST, request.FILES, instance=art)
 
         if form.is_valid() and formset.is_valid():
+            images_bytes = []
+            for f in formset.forms:
+                img = f.cleaned_data.get('image') if hasattr(f, 'cleaned_data') else None
+                if img:
+                    data = img.read()
+                    img.seek(0)
+                    images_bytes.append(data)
+
+            ok, reason = moderate_content(
+                form.cleaned_data.get('title', ''),
+                form.cleaned_data.get('description', ''),
+                images_bytes,
+                Artwork.objects.exclude(pk=art.pk).values_list('title', flat=True),
+            )
+            if not ok:
+                messages.error(request, reason)
+                return render(request, 'catalog/form.html', {
+                    'form': form,
+                    'formset': formset,
+                    'is_create': False,
+                })
+
             form.save()
             formset.save()
             messages.success(request, "E’lon yangilandi.")

@@ -40,7 +40,7 @@
       </div>
 
       <div class="mb-3">
-        {{ form.category|as_crispy_field }}
+        {{ form.dimensions|as_crispy_field }}
       </div>
 
       <!-- Rasmlar bo‘limi -->
@@ -58,13 +58,30 @@
         </div>
       </div>
 
+      {% if ai_suggestions %}
+      <div class="alert alert-info mt-4 text-start">
+        <div class="fw-semibold mb-2">AI suggestions</div>
+        {% if ai_suggestions.title %}<div><strong>Title:</strong> {{ ai_suggestions.title }}</div>{% endif %}
+        {% if ai_suggestions.description %}<div><strong>Description:</strong> {{ ai_suggestions.description }}</div>{% endif %}
+        {% if ai_suggestions.style %}<div><strong>Style:</strong> {{ ai_suggestions.style }}</div>{% endif %}
+        {% if ai_suggestions.category %}<div><strong>Category:</strong> {{ ai_suggestions.category }}</div>{% endif %}
+        {% if ai_suggestions.tags %}<div><strong>Tags:</strong> {{ ai_suggestions.tags|join:", " }}</div>{% endif %}
+        {% if ai_suggestions.hashtags %}<div><strong>Hashtags:</strong> #{{ ai_suggestions.hashtags|join:" #"}} </div>{% endif %}
+        {% if ai_suggestions.summary %}<div class="mt-2"><strong>Summary:</strong> {{ ai_suggestions.summary }}</div>{% endif %}
+        <div class="small text-muted mt-2">Copy any of the suggestions into your fields above before saving.</div>
+      </div>
+      {% endif %}
+
       <!-- Tugmalar -->
-      <div class="text-center mt-4">
-        <button type="submit" class="btn btn-gradient px-4 py-2 fw-semibold">
-          💾 Saqlash
+      <div class="text-center mt-4 d-flex justify-content-center gap-2 flex-wrap">
+        <button type="submit" name="ai_suggest" value="1" class="btn btn-outline-info px-4 py-2 fw-semibold">
+          🤖 AI suggest
         </button>
-        <a href="{% url 'catalog:home' %}" class="btn btn-outline-secondary ms-2">
-          Bekor qilish
+        <button type="submit" class="btn btn-gradient px-4 py-2 fw-semibold">
+          💾 Save
+        </button>
+        <a href="{% url 'catalog:home' %}" class="btn btn-outline-secondary">
+          Cancel
         </a>
       </div>
     </form>
