@@ -1,3 +1,19 @@
-media/
+# Python venv
+venv/
+venv3*/
+venv312/
+.env
+
+# Python cache
 __pycache__/
 *.pyc
+
+# Media files (user uploads)
+media/
+
+# Logs
+*.log
+
+# OS junk
+.DS_Store
+Thumbs.db
