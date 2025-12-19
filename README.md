@@ -8,6 +8,28 @@ ARTAR — O‘zbekiston san’atkorlari uchun rasm, video, galereya, reyting va 
 
 <!-- COMMITS-START -->
 
+<a href="https://github.com/Boburjon2142/artar/commit/b02313ea0fa29e127cf010e0be397f1fc7c40eb8" target="_blank">
+  <div style="
+      padding:12px 16px;
+      margin:10px 0;
+      border-radius:12px;
+      border:1px solid #e1e4e8;
+      background:#fafbfc;">
+    <b>init</b><br/>
+    <sub>👤 Boburjon2142 • 📅 2025-12-19 • <code>b02313e</code></sub>
+  </div>
+</a>
+<a href="https://github.com/Boburjon2142/artar/commit/ca77a3192917998702dcd831dca30d488a9b0108" target="_blank">
+  <div style="
+      padding:12px 16px;
+      margin:10px 0;
+      border-radius:12px;
+      border:1px solid #e1e4e8;
+      background:#fafbfc;">
+    <b>Auto-update README commit cards (ARTAR)</b><br/>
+    <sub>👤 github-actions[bot] • 📅 2025-12-19 • <code>ca77a31</code></sub>
+  </div>
+</a>
 <a href="https://github.com/Boburjon2142/artar/commit/79a7dd7cfaf6c96c19b90cc35d15948e9ea950e6" target="_blank">
   <div style="
       padding:12px 16px;
