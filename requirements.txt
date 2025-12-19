@@ -50,8 +50,6 @@ six==1.17.0
 sounddevice==0.5.3
 SpeechRecognition==3.14.3
 sqlparse==0.5.3
-standard-aifc==3.13.0
-standard-chunk==3.13.0
 typing-inspection==0.4.2
 typing_extensions==4.15.0
 tzdata==2025.2

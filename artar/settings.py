@@ -18,8 +18,8 @@ def get_env(name, default=None):
 
 SECRET_KEY = get_env('SECRET_KEY', 'dev-secret-key-change-me')
 DEBUG = get_env('DEBUG', '1') == '1'
-# Default hosts target artar.uz; can be overridden via env
-_default_hosts = 'artar.uz,www.artar.uz,127.0.0.1,localhost'
+# Default hosts target artar.uz and PythonAnywhere demo; can be overridden via env
+_default_hosts = 'artar.uz,www.artar.uz,sinov.pythonanywhere.com,127.0.0.1,localhost'
 ALLOWED_HOSTS = [h.strip() for h in get_env('ALLOWED_HOSTS', _default_hosts).split(',') if h]
 
 INSTALLED_APPS = [
@@ -162,7 +162,7 @@ except Exception:
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 # CSRF trusted origins from env (comma-separated full origins)
-_default_csrf = 'https://artar.uz,https://www.artar.uz'
+_default_csrf = 'https://artar.uz,https://www.artar.uz,https://sinov.pythonanywhere.com'
 CSRF_TRUSTED_ORIGINS = [o.strip() for o in get_env('CSRF_TRUSTED_ORIGINS', _default_csrf).split(',') if o]
 
 # Security headers for production

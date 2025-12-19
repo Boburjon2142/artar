@@ -1,11 +1,11 @@
 import sys, os
 
 # ==== 1) LOYIHA YO‘LI ====
-PROJECT_DIR = '/home/artaruz/artar_app'
+PROJECT_DIR = '/home/sinov/artar'
 sys.path.insert(0, PROJECT_DIR)
 
 # ==== 2) VIRTUALENV YO‘LI ====
-VENV_PATH = '/home/artaruz/virtualenv/artar_app/3.12'
+VENV_PATH = '/home/sinov/.virtualenvs/artar-310'
 activate_this = os.path.join(VENV_PATH, 'bin/activate_this.py')
 with open(activate_this) as f:
     exec(f.read(), {'__file__': activate_this})
